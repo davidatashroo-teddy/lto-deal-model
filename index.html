@@ -297,11 +297,23 @@
   ══════════════════════════════════════════════════════════════════════ -->
   <section>
     <div class="section-title"><span class="tip-wrap">Lifetime Cost — 4 Scenarios<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Every dollar you'd spend over your hold period: rent (lease only), down payment, closing costs, all mortgage payments, property taxes, and insurance. This is the true total cost of owning the home under each scenario.</span></span></div>
+    <div class="compare-controls">
+      <span>Compare vs:</span>
+      <select id="in-compare-base">
+        <option value="deal">Proposed Deal</option>
+        <option value="sca">Scenario A</option>
+        <option value="scb">Scenario B</option>
+        <option value="scc">Scenario C</option>
+        <option value="be">Breakeven</option>
+      </select>
+      <span style="font-size:.72rem; color:var(--muted); font-weight:400">— chips and chart colors update to show each option's delta vs the selected baseline</span>
+    </div>
     <div class="scenarios-grid">
 
       <!-- Deal -->
       <div class="output-card deal">
-        <h3>Proposed Deal</h3>
+        <h3><span class="tip-wrap">Proposed Deal<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">This is the LTO deal as configured in Deal Parameters above. Total = option fee + rent × months + strike price. The rate used is your "mortgage rate at close," not today's rate.</span></span></h3>
+        <div class="card-price" id="deal-price"></div>
         <div class="card-label" id="deal-label">39 Orinda View (Lease-to-Own)</div>
         <div class="big-stat">
           <div class="amount" id="deal-lifetime">—</div>
@@ -322,6 +334,7 @@
       <!-- Scenario A -->
       <div class="output-card scen-a">
         <h3>Scenario A</h3>
+        <div class="card-price" id="sca-price"></div>
         <div class="card-label" id="sca-label">—</div>
         <div class="big-stat">
           <div class="amount" id="sca-lifetime">—</div>
@@ -342,6 +355,7 @@
       <!-- Scenario B -->
       <div class="output-card scen-b">
         <h3>Scenario B</h3>
+        <div class="card-price" id="scb-price"></div>
         <div class="card-label" id="scb-label">—</div>
         <div class="big-stat">
           <div class="amount" id="scb-lifetime">—</div>
@@ -362,6 +376,7 @@
       <!-- Scenario C -->
       <div class="output-card scen-c">
         <h3>Scenario C</h3>
+        <div class="card-price" id="scc-price"></div>
         <div class="card-label" id="scc-label">—</div>
         <div class="big-stat">
           <div class="amount" id="scc-lifetime">—</div>
@@ -387,7 +402,7 @@
         <span class="be-price" id="out-be-price">—</span>
         <span class="be-sqft" id="out-be-sqft">—</span>
       </div>
-      <div class="be-caption"><span class="tip-wrap">Breakeven comparable purchase price<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">If you could buy a comparable home today at exactly this price, your 30-year lifetime cost would be identical to the deal. Homes priced above this number make the deal look better. Below this number, buying today is the better value.</span></span> — the deal's "equivalent" conventional price</div>
+      <div class="be-caption"><span class="tip-wrap">Breakeven comparable purchase price<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">If you could buy a comparable home today at exactly this price, your lifetime cost would be identical to the deal. Computed at your current "mortgage rate at close." The Sensitivity Analysis section shows how this shifts at different rates — a higher close rate makes the deal more expensive, which pushes the breakeven up.</span></span> — the deal's "equivalent" conventional price</div>
     </div>
   </section>
 
@@ -401,10 +416,10 @@
         <svg id="bar-chart" class="bar-chart" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div style="margin-top:10px; font-size:.72rem; color:var(--muted);">
-        <strong style="color:var(--green)">■</strong> Costs >$250K more than deal &nbsp;
-        <strong style="color:var(--amber)">■</strong> Costs $50–250K more &nbsp;
+        <strong style="color:var(--green)">■</strong> Saves &gt;$250K vs baseline &nbsp;
+        <strong style="color:var(--amber)">■</strong> Saves $50–250K &nbsp;
         <strong style="color:#94a3b8">■</strong> ~Equivalent &nbsp;
-        <strong style="color:var(--red)">■</strong> Cheaper than deal
+        <strong style="color:var(--red)">■</strong> Costs more than baseline
       </div>
     </div>
   </section>
@@ -479,7 +494,12 @@
             <span class="tip-bubble">What you think this home is actually worth today. This becomes the baseline: the lifetime cost of buying a comparable home outright at this price, at today's mortgage rate. Every deal structure is measured against this.</span>
           </span>
         </label>
-        <input type="text" inputmode="numeric" id="in-fair-value" value="3,050,000" />
+        <div class="price-sqft-row">
+          <input type="text" inputmode="numeric" id="in-fair-value" value="3,050,000" />
+          <span class="price-sqft-sep">or</span>
+          <input type="number" id="in-fair-value-sqft" style="max-width:80px;" step="1" />
+          <span class="price-sqft-unit">$/sqft</span>
+        </div>
       </div>
       <div class="input-row">
         <label for="in-seller-ask">
@@ -488,7 +508,12 @@
             <span class="tip-bubble">The total consideration the seller is asking for. Used in Part 2 to solve: "if I'm capped at 18 or 24 months of lease, what strike price gets the seller to this number?"</span>
           </span>
         </label>
-        <input type="text" inputmode="numeric" id="in-seller-ask" value="3,400,000" />
+        <div class="price-sqft-row">
+          <input type="text" inputmode="numeric" id="in-seller-ask" value="3,400,000" />
+          <span class="price-sqft-sep">or</span>
+          <input type="number" id="in-seller-ask-sqft" style="max-width:80px;" step="1" />
+          <span class="price-sqft-unit">$/sqft</span>
+        </div>
       </div>
     </div>
 

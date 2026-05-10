@@ -230,15 +230,17 @@ function readInputs() {
 function set(id, val) { const el = $(id); if (el) el.textContent = val; }
 function setHtml(id, val) { const el = $(id); if (el) el.innerHTML = val; }
 
-function savingsChip(savings) {
-  if (!isFinite(savings)) return '';
-  if (savings > 250000)  return `<span class="savings-chip chip-green">Saves ${fmtM(savings)} vs deal</span>`;
-  if (savings > 50000)   return `<span class="savings-chip chip-yellow">Saves ${fmtM(savings)} vs deal</span>`;
-  if (savings >= -50000) return `<span class="savings-chip chip-gray">~Equivalent to deal</span>`;
-  return `<span class="savings-chip chip-red">Deal saves ${fmtM(-savings)}</span>`;
+function savingsChip(delta, baselineLabel) {
+  // delta = thisCost − baselineCost; positive = this option costs MORE than baseline
+  if (!isFinite(delta)) return '';
+  const lbl = baselineLabel || 'deal';
+  if (delta > 250000)  return `<span class="savings-chip chip-red">Costs ${fmtM(delta)} more than ${lbl}</span>`;
+  if (delta > 50000)   return `<span class="savings-chip chip-yellow">Costs ${fmtM(delta)} more than ${lbl}</span>`;
+  if (delta >= -50000) return `<span class="savings-chip chip-gray">~Same as ${lbl}</span>`;
+  return `<span class="savings-chip chip-green">Saves ${fmtM(-delta)} vs ${lbl}</span>`;
 }
 
-function writeCard(prefix, label, lifetime, dealCost, price, inp, isLease) {
+function writeCard(prefix, label, lifetime, compareCost, compareLabel, price, inp, isLease) {
   const { downPct, closingPct, sqft, product, refiYear, holdYears, annIns, county, strike } = inp;
   const rate    = isLease ? inp.closeRate : inp.todayRate;
   const loan    = price * (1 - downPct / 100);
@@ -248,11 +250,14 @@ function writeCard(prefix, label, lifetime, dealCost, price, inp, isLease) {
   const insYear1 = isLease ? annIns : price * (COUNTY_INS_PER_M[county] || 1800) / 1e6;
   const insMo   = insYear1 / 12;
   const totalMo = initPI + taxMo + insMo;
-  const savings = lifetime - dealCost;
+  const delta   = lifetime - compareCost; // positive = this card costs MORE than baseline
 
   set(`${prefix}-label`, label);
   set(`${prefix}-lifetime`, fmtM(lifetime));
-  setHtml(`${prefix}-savings`, isLease ? '<span class="savings-chip chip-gray">—</span>' : savingsChip(savings));
+  set(`${prefix}-price`, isLease ? fmtM(inp.total) : fmtM(price));
+  setHtml(`${prefix}-savings`, Math.abs(delta) < 100
+    ? '<span class="savings-chip chip-gray">comparison baseline</span>'
+    : savingsChip(delta, compareLabel));
   set(`${prefix}-loan`, fmt$(loan));
   set(`${prefix}-initPI`, fmt$(initPI));
   set(`${prefix}-refiPI`, rPI !== null ? fmt$(rPI) : 'n/a');
@@ -309,31 +314,52 @@ function recalculate() {
   const costB = convLifetime(inp.scBPrice, inp);
   const costC = convLifetime(inp.scCPrice, inp);
 
-  // Write cards
-  writeCard('deal', '39 Orinda View (Lease-to-Own)', deal, deal, inp.strike, inp, true);
-  writeCard('sca',  inp.scALabel, costA, deal, inp.scAPrice, inp, false);
-  writeCard('scb',  inp.scBLabel, costB, deal, inp.scBPrice, inp, false);
-  writeCard('scc',  inp.scCLabel, costC, deal, inp.scCPrice, inp, false);
-
   // Breakeven
-  const be = solveBreakeven(deal, inp);
+  const be     = solveBreakeven(deal, inp);
+  const beCost = convLifetime(be, inp);
   set('out-be-price', fmt$(be));
   set('out-be-sqft', inp.sqft > 0 ? fmtSqft(be / inp.sqft) : '—');
 
-  // Bar chart
+  // Comparison baseline
+  const compareBase = $('in-compare-base')?.value || 'deal';
+  const compareOpts = {
+    deal: { cost: deal,   label: 'proposed deal' },
+    sca:  { cost: costA,  label: (inp.scALabel || 'Scen A').toLowerCase() },
+    scb:  { cost: costB,  label: (inp.scBLabel || 'Scen B').toLowerCase() },
+    scc:  { cost: costC,  label: (inp.scCLabel || 'Scen C').toLowerCase() },
+    be:   { cost: beCost, label: 'breakeven' },
+  };
+  const { cost: compareCost, label: compareLabel } = compareOpts[compareBase] || compareOpts.deal;
+
+  // Write cards
+  writeCard('deal', '39 Orinda View (Lease-to-Own)', deal, compareCost, compareLabel, inp.strike, inp, true);
+  writeCard('sca',  inp.scALabel, costA, compareCost, compareLabel, inp.scAPrice, inp, false);
+  writeCard('scb',  inp.scBLabel, costB, compareCost, compareLabel, inp.scBPrice, inp, false);
+  writeCard('scc',  inp.scCLabel, costC, compareCost, compareLabel, inp.scCPrice, inp, false);
+
+  // Bar chart (colors relative to selected comparison baseline)
   drawChart([
-    { label: 'Proposed Deal', cost: deal, isBase: true },
+    { label: 'Proposed Deal', cost: deal },
     { label: inp.scALabel || 'Scenario A', cost: costA },
     { label: inp.scBLabel || 'Scenario B', cost: costB },
     { label: inp.scCLabel || 'Scenario C', cost: costC },
-    { label: 'Breakeven', cost: convLifetime(be, inp), isBe: true },
-  ], deal);
+    { label: 'Breakeven', cost: beCost },
+  ], compareCost);
 
   // Breakeven sensitivity table
   updateBeTable(inp, deal);
 
   // Sensitivity panel
   updateSensPanel(inp);
+
+  // Sync Section B $/sqft displays when sqft or prices change
+  ['fair-value', 'seller-ask'].forEach(pfx => {
+    const sqftEl = $(`in-${pfx}-sqft`);
+    if (sqftEl && sqftEl !== document.activeElement) {
+      const price = parseFloat(stripCommas($(`in-${pfx}`)?.value || '0')) || 0;
+      sqftEl.value = inp.sqft > 0 ? Math.round(price / inp.sqft) : 0;
+    }
+  });
 
   // Section B
   updateSectionB();
@@ -354,11 +380,11 @@ function drawBarChart(svgId, scenarios, baselineCost) {
 
   function barColor(s) {
     if (s.isBaseline) return '#64748b';
-    const savings = baselineCost - s.cost; // positive = deal saves money
-    if (savings > 250000)  return '#16a34a';
-    if (savings > 50000)   return '#d97706';
-    if (savings >= -50000) return '#94a3b8';
-    return '#dc2626';
+    const delta = s.cost - baselineCost; // positive = this bar costs MORE than baseline
+    if (delta > 250000)  return '#dc2626'; // red: much more expensive
+    if (delta > 50000)   return '#d97706'; // amber: somewhat more expensive
+    if (delta >= -50000) return '#94a3b8'; // gray: ~equivalent
+    return '#16a34a';                       // green: cheaper than baseline
   }
 
   let out = `<line x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${h - PAD_B}" class="bar-axis"/>`;
@@ -539,6 +565,19 @@ function syncScen(s, fromSqft) {
     priceEl.value = fmtComma(Math.round((parseFloat(stripCommas(sqftEl.value)) || 0) * sqft));
   } else {
     sqftEl.value = ((parseFloat(stripCommas(priceEl.value)) || 0) / sqft).toFixed(0);
+  }
+}
+
+// ─── Section B $/sqft ↔ total bidirectional sync ─────────────────────────────
+function syncBSqft(pfx, fromSqft) {
+  const houseSqft = parseFloat(stripCommas($('in-sqft').value)) || 1;
+  const sqftEl  = $(`in-${pfx}-sqft`);
+  const priceEl = $(`in-${pfx}`);
+  if (!sqftEl || !priceEl) return;
+  if (fromSqft) {
+    priceEl.value = fmtComma(Math.round((parseFloat(sqftEl.value) || 0) * houseSqft));
+  } else {
+    sqftEl.value = Math.round((parseFloat(stripCommas(priceEl.value)) || 0) / houseSqft);
   }
 }
 
@@ -723,13 +762,27 @@ function init() {
     recalculate();
   });
 
-  // Section B inputs
-  ['in-fair-value', 'in-seller-ask'].forEach(id => {
-    const el = $(id); if (!el) return;
-    el.addEventListener('input', recalculate);
-    el.addEventListener('change', recalculate);
-  });
-  ['in-fair-value', 'in-seller-ask'].forEach(commaInput);
+  // Section B inputs — bidirectional total ↔ $/sqft sync
+  const _fvEl  = $('in-fair-value');
+  const _saEl  = $('in-seller-ask');
+  const _fvSEl = $('in-fair-value-sqft');
+  const _saSEl = $('in-seller-ask-sqft');
+  if (_fvEl) {
+    _fvEl.addEventListener('input', () => { syncBSqft('fair-value', false); recalculate(); });
+    _fvEl.addEventListener('change', recalculate);
+  }
+  if (_saEl) {
+    _saEl.addEventListener('input', () => { syncBSqft('seller-ask', false); recalculate(); });
+    _saEl.addEventListener('change', recalculate);
+  }
+  if (_fvSEl) _fvSEl.addEventListener('input', () => { syncBSqft('fair-value', true); recalculate(); });
+  if (_saSEl) _saSEl.addEventListener('input', () => { syncBSqft('seller-ask', true); recalculate(); });
+  commaInput('in-fair-value');
+  commaInput('in-seller-ask');
+
+  // Compare-vs selector
+  const _cmpEl = $('in-compare-base');
+  if (_cmpEl) _cmpEl.addEventListener('change', recalculate);
 
   // Wire comma formatting on dollar-amount text inputs
   ['in-total','in-option-fee','in-rent','in-sqft','in-refi-costs',
@@ -741,6 +794,11 @@ function init() {
    ['in-sqft', 4316], ['in-refi-costs', 5000]].forEach(([id, val]) => {
     const el = $(id); if (el) el.value = fmtComma(val);
   });
+
+  // Initialize Section B $/sqft fields
+  const _defSqft = 4316;
+  if (_fvSEl) _fvSEl.value = Math.round(3050000 / _defSqft);
+  if (_saSEl) _saSEl.value = Math.round(3400000 / _defSqft);
 
   // Track if refi-year was manually touched
   $('in-refi-year').addEventListener('input', function() { this._touched = true; });

@@ -262,6 +262,37 @@ body.is-arm #section-refi { display: block; }
 .chip-gray   { background: var(--gray-lt);   color: var(--muted);  }
 .chip-red    { background: var(--red-lt);    color: var(--red);    }
 
+/* ── Card price sub-line ─────────────────────────────────────────────────── */
+.output-card .card-price {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: -6px 0 8px;
+}
+
+/* ── Compare-vs selector ─────────────────────────────────────────────────── */
+.compare-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+.compare-controls select { width: auto; min-width: 160px; font-size: .82rem; }
+
+/* ── Price / $/sqft inline pair ──────────────────────────────────────────── */
+.price-sqft-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.price-sqft-row > input:first-child { flex: 1; min-width: 0; }
+.price-sqft-sep  { font-size: .72rem; color: var(--muted); flex-shrink: 0; padding: 0 2px; }
+.price-sqft-unit { font-size: .72rem; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+
 /* ── Stat rows ───────────────────────────────────────────────────────────── */
 .stat-row {
   display: flex;
