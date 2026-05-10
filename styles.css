@@ -371,6 +371,46 @@ tr.breakeven-row td { background: var(--highlight); font-weight: 700; color: var
 .btn-primary { background: var(--blue); color: #fff; }
 .btn-ghost   { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
 
+/* ── Section B table ─────────────────────────────────────────────────────── */
+tr.divider-row td {
+  background: var(--navy);
+  color: #94a3b8;
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 7px 10px;
+  border-bottom: none;
+}
+tr.current-offer-row td {
+  background: var(--highlight);
+  font-weight: 700;
+  color: var(--navy);
+}
+tr.current-offer-row td:first-child::after {
+  content: " ★ current offer";
+  font-size: .65rem;
+  color: var(--blue);
+  font-weight: 700;
+}
+tr.baseline-row td {
+  background: var(--gray-lt);
+  color: var(--muted);
+  font-style: italic;
+  border-top: 2px solid var(--border);
+}
+
+/* ── Section B inputs ────────────────────────────────────────────────────── */
+.section-b-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .section-b-inputs { grid-template-columns: 1fr; }
+}
+
 /* ── Editable breakeven table controls ──────────────────────────────────── */
 .be-table-actions {
   display: flex;

@@ -334,14 +334,17 @@ function recalculate() {
 
   // Sensitivity panel
   updateSensPanel(inp);
+
+  // Section B
+  updateSectionB();
 }
 
-// ─── Bar chart (SVG) ──────────────────────────────────────────────────────────
-function drawChart(scenarios, dealCost) {
-  const svg = $('bar-chart');
+// ─── Bar chart (SVG) — generic ───────────────────────────────────────────────
+function drawBarChart(svgId, scenarios, baselineCost) {
+  const svg = $(svgId);
   if (!svg) return;
 
-  const W = 700, ROW = 44, PAD_L = 160, PAD_R = 90, PAD_T = 20, PAD_B = 30;
+  const W = 700, ROW = 44, PAD_L = 175, PAD_R = 90, PAD_T = 20, PAD_B = 30;
   const h = PAD_T + scenarios.length * ROW + PAD_B;
   svg.setAttribute('viewBox', `0 0 ${W} ${h}`);
   svg.setAttribute('height', h);
@@ -349,33 +352,34 @@ function drawChart(scenarios, dealCost) {
   const maxCost = Math.max(...scenarios.map(s => s.cost)) * 1.05;
   const barW = W - PAD_L - PAD_R;
 
-  function color(s) {
-    if (s.isBase) return '#1e3a5f';
-    if (s.isBe)   return '#64748b';
-    const diff = s.cost - dealCost;
-    if (diff > 250000)  return '#16a34a';
-    if (diff > 50000)   return '#d97706';
-    if (diff >= -50000) return '#94a3b8';
+  function barColor(s) {
+    if (s.isBaseline) return '#64748b';
+    const savings = baselineCost - s.cost; // positive = deal saves money
+    if (savings > 250000)  return '#16a34a';
+    if (savings > 50000)   return '#d97706';
+    if (savings >= -50000) return '#94a3b8';
     return '#dc2626';
   }
 
-  let out = '';
-  // Axis line
-  out += `<line x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${h - PAD_B}" class="bar-axis"/>`;
+  let out = `<line x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${h - PAD_B}" class="bar-axis"/>`;
 
   scenarios.forEach((s, i) => {
-    const y = PAD_T + i * ROW;
-    const bw = Math.max(2, (s.cost / maxCost) * barW);
+    const y   = PAD_T + i * ROW;
+    const bw  = Math.max(2, (s.cost / maxCost) * barW);
     const mid = y + ROW * 0.5;
     out += `
       <rect x="${PAD_L}" y="${y + 6}" width="${bw}" height="${ROW - 14}"
-            rx="4" fill="${color(s)}" opacity="${s.isBe ? 0.45 : 0.85}"/>
+            rx="4" fill="${barColor(s)}" opacity="${s.isBaseline ? 0.5 : 0.85}"/>
       <text x="${PAD_L - 8}" y="${mid + 4}" class="bar-label" text-anchor="end"
-            font-weight="${s.isBase ? 700 : 400}">${s.label}</text>
+            font-weight="${s.isCurrent || s.isBaseline ? 700 : 400}">${s.label}</text>
       <text x="${PAD_L + bw + 6}" y="${mid + 4}" class="bar-value">${fmtM(s.cost)}</text>`;
   });
 
   svg.innerHTML = out;
+}
+
+function drawChart(scenarios, dealCost) {
+  drawBarChart('bar-chart', scenarios, dealCost);
 }
 
 // ─── Breakeven sensitivity table ──────────────────────────────────────────────
@@ -538,6 +542,137 @@ function syncScen(s, fromSqft) {
   }
 }
 
+// ─── Section B: Deal Structure Comparison ────────────────────────────────────
+
+function solveStrikeForTotal(targetTotal, leaseMonths, inp) {
+  return targetTotal - inp.optionFee - inp.monthlyRent * leaseMonths;
+}
+
+function dealLifetimeCustom(leaseMonths, strike, inp) {
+  const m = Object.assign({}, inp, { leaseMonths, strike });
+  if (m.insAuto) m.annIns = autoIns(m);
+  return dealLifetime(m);
+}
+
+function structRow(label, sublabel, leaseMonths, strike, totalToSeller, inp, baselineCost, flags) {
+  const m       = Object.assign({}, inp, { leaseMonths, strike });
+  if (m.insAuto) m.annIns = autoIns(m);
+  const cost    = flags.isBaseline ? baselineCost : dealLifetimeCustom(leaseMonths, strike, inp);
+  const loan    = strike * (1 - inp.downPct / 100);
+  const rate    = flags.isBaseline ? inp.todayRate : inp.closeRate;
+  const initPI  = mPI(loan, rate, 360);
+  const refiPI  = (!flags.isBaseline && inp.product !== '30yr' && inp.refiYear < inp.holdYears)
+    ? refiPayment(strike, rate, inp) : null;
+  const closeDate = addMonths(inp.signingDate, leaseMonths);
+  const savings   = baselineCost - cost;
+  return { label, sublabel, leaseMonths, strike, totalToSeller, cost, loan, initPI, refiPI, closeDate, savings, ...flags };
+}
+
+function renderStructRow(row) {
+  const { label, sublabel, totalToSeller, strike, closeDate, cost, loan, initPI, refiPI, savings, isBaseline, isCurrent } = row;
+  let savHtml;
+  if (isBaseline) {
+    savHtml = '<span style="color:var(--muted)">baseline</span>';
+  } else if (savings > 250000) {
+    savHtml = `<span style="color:var(--green);font-weight:700">saves ${fmtM(savings)}</span>`;
+  } else if (savings > 50000) {
+    savHtml = `<span style="color:var(--amber);font-weight:700">saves ${fmtM(savings)}</span>`;
+  } else if (savings >= -50000) {
+    savHtml = `<span style="color:var(--muted);font-weight:600">~even</span>`;
+  } else {
+    savHtml = `<span style="color:var(--red);font-weight:700">costs ${fmtM(-savings)} more</span>`;
+  }
+  const piDisplay = refiPI ? `${fmt$(initPI)} → ${fmt$(refiPI)}` : fmt$(initPI);
+  const cls = isBaseline ? 'baseline-row' : isCurrent ? 'current-offer-row' : '';
+  return `<tr class="${cls}">
+    <td><strong>${label}</strong><br><span style="font-size:.72rem;color:var(--muted)">${sublabel}</span></td>
+    <td>${fmt$(totalToSeller)}</td>
+    <td>${isBaseline ? '—' : fmt$(strike)}</td>
+    <td>${closeDate}</td>
+    <td><strong>${fmtM(cost)}</strong></td>
+    <td>${savHtml}</td>
+    <td>${fmt$(loan)}</td>
+    <td>${piDisplay}</td>
+  </tr>`;
+}
+
+function updateSectionB() {
+  const tbody = $('struct-tbody');
+  if (!tbody) return;
+
+  const inp       = readInputs();
+  const fairValue = parseFloat(stripCommas($('in-fair-value')?.value || '3050000')) || 3050000;
+  const sellerAsk = parseFloat(stripCommas($('in-seller-ask')?.value || '3400000')) || 3400000;
+
+  // Baseline: buy comparable at fair value today
+  const baselineConv  = inp => convLifetime(fairValue, inp);
+  const baselineCost  = baselineConv(inp);
+  const baselineLoan  = fairValue * (1 - inp.downPct / 100);
+
+  // Fixed strike from current deal structure
+  const fixedStrike = inp.strike;
+
+  // Part 1: fixed strike, varying lease
+  const p1 = [12, 18, 24].map(mo => {
+    const total = inp.optionFee + mo * inp.monthlyRent + fixedStrike;
+    return structRow(
+      `${mo}mo lease`,
+      `${fmt$(fixedStrike)} strike · closes ${addMonths(inp.signingDate, mo)}`,
+      mo, fixedStrike, total, inp, baselineCost,
+      { isCurrent: mo === inp.leaseMonths }
+    );
+  });
+
+  // Part 2: fixed lease (18 & 24mo), solve strike for two targets
+  const p2 = [];
+  [18, 24].forEach(mo => {
+    [inp.total, sellerAsk].forEach(target => {
+      const strike = solveStrikeForTotal(target, mo, inp);
+      if (strike < 0) return;
+      const tLabel = target === inp.total ? `${fmt$(target)} proposed` : `${fmt$(target)} seller's ask`;
+      p2.push(structRow(
+        `${mo}mo · strike to hit ${tLabel}`,
+        `${fmt$(strike)} strike · closes ${addMonths(inp.signingDate, mo)}`,
+        mo, strike, target, inp, baselineCost,
+        { isCurrent: mo === inp.leaseMonths && Math.round(strike) === Math.round(fixedStrike) }
+      ));
+    });
+  });
+
+  // Baseline row
+  const blRow = structRow(
+    `Buy comparable ${fmt$(fairValue)} now`,
+    'Conventional purchase · market alternative',
+    0, fairValue, fairValue, inp, baselineCost,
+    { isBaseline: true }
+  );
+  // Override cost with actual convLifetime
+  blRow.cost    = baselineCost;
+  blRow.loan    = baselineLoan;
+  blRow.initPI  = mPI(baselineLoan, inp.todayRate, 360);
+  blRow.refiPI  = null;
+  blRow.savings = 0;
+
+  // Render table
+  const divider = (txt, cols) =>
+    `<tr class="divider-row"><td colspan="${cols}">${txt}</td></tr>`;
+
+  tbody.innerHTML =
+    divider(`Part 1 — Fixed strike (${fmt$(fixedStrike)}), lease length as the lever`, 8) +
+    p1.map(renderStructRow).join('') +
+    divider('Part 2 — Fixed lease (18mo or 24mo), strike as the lever', 8) +
+    p2.map(renderStructRow).join('') +
+    renderStructRow(blRow);
+
+  // Bar chart B
+  const chartRows = [
+    ...p1.map(r => ({ label: `${r.leaseMonths}mo / ${fmtM(r.totalToSeller)}`, cost: r.cost, isCurrent: r.isCurrent })),
+    ...p2.map(r => ({ label: `${r.leaseMonths}mo · ${fmtM(r.totalToSeller)}`, cost: r.cost })),
+    { label: `Buy $${(fairValue/1e6).toFixed(2)}M now`, cost: baselineCost, isBaseline: true },
+  ];
+  drawBarChart('bar-chart-b', chartRows, baselineCost);
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 function init() {
   // Set defaults
@@ -587,6 +722,14 @@ function init() {
     el.classList.toggle('auto-computed', this.checked);
     recalculate();
   });
+
+  // Section B inputs
+  ['in-fair-value', 'in-seller-ask'].forEach(id => {
+    const el = $(id); if (!el) return;
+    el.addEventListener('input', recalculate);
+    el.addEventListener('change', recalculate);
+  });
+  ['in-fair-value', 'in-seller-ask'].forEach(commaInput);
 
   // Wire comma formatting on dollar-amount text inputs
   ['in-total','in-option-fee','in-rent','in-sqft','in-refi-costs',

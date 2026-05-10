@@ -460,6 +460,74 @@
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════════
+       SECTION B — DEAL STRUCTURE COMPARISON
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="section-title">
+      <span class="tip-wrap">Deal Structure Comparison
+        <button class="tip-icon" tabindex="-1">i</button>
+        <span class="tip-bubble wide">Two-part analysis. Part 1: keep the strike fixed and see how different lease lengths change the total you pay and your lifetime cost. Part 2: cap the lease at 18 or 24 months and solve for what strike price is needed to hit each target total. The baseline row at the bottom is always "buy a comparable home at my fair value today."</span>
+      </span>
+    </div>
+
+    <!-- Section B inputs -->
+    <div class="card section-b-inputs">
+      <div class="input-row">
+        <label for="in-fair-value">
+          <span class="tip-wrap">My fair value / comparable home price
+            <button class="tip-icon" tabindex="-1">i</button>
+            <span class="tip-bubble">What you think this home is actually worth today. This becomes the baseline: the lifetime cost of buying a comparable home outright at this price, at today's mortgage rate. Every deal structure is measured against this.</span>
+          </span>
+        </label>
+        <input type="text" inputmode="numeric" id="in-fair-value" value="3,050,000" />
+      </div>
+      <div class="input-row">
+        <label for="in-seller-ask">
+          <span class="tip-wrap">Seller's asking total
+            <button class="tip-icon" tabindex="-1">i</button>
+            <span class="tip-bubble">The total consideration the seller is asking for. Used in Part 2 to solve: "if I'm capped at 18 or 24 months of lease, what strike price gets the seller to this number?"</span>
+          </span>
+        </label>
+        <input type="text" inputmode="numeric" id="in-seller-ask" value="3,400,000" />
+      </div>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Structure</th>
+              <th>Total to seller</th>
+              <th>Strike / price</th>
+              <th>Close date</th>
+              <th>Lifetime cost</th>
+              <th>vs. Buy now</th>
+              <th>Loan</th>
+              <th>Monthly P&amp;I</th>
+            </tr>
+          </thead>
+          <tbody id="struct-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bar chart B -->
+    <div class="card" style="margin-top:16px;">
+      <div class="chart-wrap">
+        <svg id="bar-chart-b" class="bar-chart" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div style="margin-top:10px; font-size:.72rem; color:var(--muted);">
+        <strong style="color:var(--green)">■</strong> Saves &gt;$250K vs buying now &nbsp;
+        <strong style="color:var(--amber)">■</strong> Saves $50–250K &nbsp;
+        <strong style="color:#94a3b8">■</strong> ~Equivalent &nbsp;
+        <strong style="color:var(--red)">■</strong> Costs more than buying now
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════
        ACTION BAR
   ══════════════════════════════════════════════════════════════════════ -->
   <div class="action-bar">
