@@ -51,18 +51,18 @@
 
         <div class="input-row">
           <label for="in-total"><span class="tip-wrap">Total consideration to seller<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total amount the seller will ultimately receive — option fee + rent payments + strike price. This is the headline number in your offer.</span></span></label>
-          <input type="number" id="in-total" value="3100000" step="10000" />
+          <input type="text" inputmode="numeric" id="in-total" value="3,100,000" />
         </div>
 
         <div class="input-row">
           <label for="in-option-fee"><span class="tip-wrap">Option consideration at signing<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">An upfront fee paid when you sign the lease. It gives you the right (the "option") to buy at the end. It counts toward the total consideration but does NOT reduce the strike price.</span></span></label>
-          <input type="number" id="in-option-fee" value="75000" step="5000" />
+          <input type="text" inputmode="numeric" id="in-option-fee" value="75,000" />
           <div class="hint">Non-creditable to strike price</div>
         </div>
 
         <div class="input-row">
           <label for="in-rent">Monthly rent during occupancy</label>
-          <input type="number" id="in-rent" value="15000" step="500" />
+          <input type="text" inputmode="numeric" id="in-rent" value="15,000" />
         </div>
 
         <div class="input-row">
@@ -87,7 +87,7 @@
       <div class="input-grid two-col" style="margin-top:12px;">
         <div class="input-row">
           <label for="in-strike"><span class="tip-wrap">Strike price at close<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The price you'll pay to buy the home at the end of the lease. By default it's auto-calculated as: total − option fee − (rent × months). You can override this manually.</span></span></label>
-          <input type="number" id="in-strike" step="5000" class="auto-computed" readonly />
+          <input type="text" inputmode="numeric" id="in-strike" class="auto-computed" readonly />
           <div class="override-row">
             <label class="toggle-switch">
               <input type="checkbox" id="in-strike-auto" checked />
@@ -104,7 +104,7 @@
 
         <div class="input-row">
           <label for="in-sqft">Square footage</label>
-          <input type="number" id="in-sqft" value="4316" step="1" />
+          <input type="text" inputmode="numeric" id="in-sqft" value="4,316" />
         </div>
 
         <div class="input-row">
@@ -199,7 +199,7 @@
 
           <div class="input-row">
             <label for="in-refi-costs">Refinance closing costs ($)</label>
-            <input type="number" id="in-refi-costs" value="5000" step="500" min="0" />
+            <input type="text" inputmode="numeric" id="in-refi-costs" value="5,000" />
           </div>
 
         </div>
@@ -211,7 +211,7 @@
 
         <div class="input-row">
           <label for="in-insurance">Annual home insurance ($)</label>
-          <input type="number" id="in-insurance" step="100" class="auto-computed" readonly />
+          <input type="text" inputmode="numeric" id="in-insurance" class="auto-computed" readonly />
           <div class="override-row">
             <label class="toggle-switch">
               <input type="checkbox" id="in-ins-auto" checked />
@@ -246,7 +246,7 @@
             </div>
             <div class="input-row">
               <label for="in-sc-a-price">Total price</label>
-              <input type="number" id="in-sc-a-price" value="2727712" step="10000" />
+              <input type="text" inputmode="numeric" id="in-sc-a-price" value="2,727,712" />
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@
             </div>
             <div class="input-row">
               <label for="in-sc-b-price">Total price</label>
-              <input type="number" id="in-sc-b-price" value="3051412" step="10000" />
+              <input type="text" inputmode="numeric" id="in-sc-b-price" value="3,051,412" />
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@
             </div>
             <div class="input-row">
               <label for="in-sc-c-price">Total price</label>
-              <input type="number" id="in-sc-c-price" value="3400808" step="10000" />
+              <input type="text" inputmode="numeric" id="in-sc-c-price" value="3,400,808" />
             </div>
           </div>
         </div>

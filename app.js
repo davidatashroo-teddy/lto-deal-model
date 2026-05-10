@@ -147,6 +147,25 @@ function fmtM(n) {
 }
 function fmtPct(n) { return n.toFixed(2) + '%'; }
 function fmtSqft(n) { return '$' + Math.round(n).toLocaleString() + '/sqft'; }
+function fmtComma(n) {
+  if (!isFinite(n)) return '';
+  return Math.round(n).toLocaleString('en-US');
+}
+function stripCommas(s) {
+  return (s || '').replace(/,/g, '').trim();
+}
+
+// Wire up focus/blur comma formatting on a text input
+function commaInput(id) {
+  const el = $(id); if (!el) return;
+  el.addEventListener('focus', function() {
+    this.value = stripCommas(this.value);
+  });
+  el.addEventListener('blur', function() {
+    const n = parseFloat(stripCommas(this.value));
+    if (isFinite(n)) this.value = fmtComma(n);
+  });
+}
 
 // ─── Read inputs ──────────────────────────────────────────────────────────────
 function readInputs() {
@@ -155,7 +174,7 @@ function readInputs() {
     if (!el) return DEFAULTS[k];
     if (el.type === 'checkbox') return el.checked;
     if (el.tagName === 'SELECT') return el.value;
-    const n = parseFloat(el.value);
+    const n = parseFloat(stripCommas(el.value));
     return isNaN(n) ? 0 : n;
   };
   const str = k => { const el = $(k); return el ? el.value : ''; };
@@ -253,11 +272,11 @@ function recalculate() {
   // Update auto-computed fields in DOM
   if (inp.strikeAuto) {
     const el = $('in-strike');
-    if (el) { el.value = Math.round(inp.strike); }
+    if (el && el !== document.activeElement) el.value = fmtComma(inp.strike);
   }
   if (inp.insAuto) {
     const el = $('in-insurance');
-    if (el) { el.value = Math.round(inp.annIns); }
+    if (el && el !== document.activeElement) el.value = fmtComma(inp.annIns);
   }
   // Close date
   const closeDate = addMonths(inp.signingDate, inp.leaseMonths);
@@ -268,8 +287,10 @@ function recalculate() {
   // Update scenario prices from sqft
   ['a','b','c'].forEach(s => {
     const p = $(`in-sc-${s}-price`);
-    const sqft = parseFloat($(`in-sc-${s}-sqft`).value) || 0;
-    if (p) p.value = Math.round(sqft * inp.sqft);
+    if (p && p !== document.activeElement) {
+      const sqft = parseFloat(stripCommas($(`in-sc-${s}-sqft`).value)) || 0;
+      p.value = fmtComma(Math.round(sqft * inp.sqft));
+    }
   });
 
   // ARM visibility
@@ -507,13 +528,13 @@ function decodeState() {
 
 // ─── Scenario sqft ↔ price bidirectional sync ─────────────────────────────────
 function syncScen(s, fromSqft) {
-  const sqft  = parseFloat($('in-sqft').value) || 1;
-  const sqftEl = $(`in-sc-${s}-sqft`);
+  const sqft   = parseFloat(stripCommas($('in-sqft').value)) || 1;
+  const sqftEl  = $(`in-sc-${s}-sqft`);
   const priceEl = $(`in-sc-${s}-price`);
   if (fromSqft) {
-    priceEl.value = Math.round((parseFloat(sqftEl.value) || 0) * sqft);
+    priceEl.value = fmtComma(Math.round((parseFloat(stripCommas(sqftEl.value)) || 0) * sqft));
   } else {
-    sqftEl.value = ((parseFloat(priceEl.value) || 0) / sqft).toFixed(0);
+    sqftEl.value = ((parseFloat(stripCommas(priceEl.value)) || 0) / sqft).toFixed(0);
   }
 }
 
@@ -565,6 +586,17 @@ function init() {
     el.readOnly = this.checked;
     el.classList.toggle('auto-computed', this.checked);
     recalculate();
+  });
+
+  // Wire comma formatting on dollar-amount text inputs
+  ['in-total','in-option-fee','in-rent','in-sqft','in-refi-costs',
+   'in-strike','in-insurance',
+   'in-sc-a-price','in-sc-b-price','in-sc-c-price'].forEach(commaInput);
+
+  // Set initial comma-formatted display values
+  [['in-total', 3100000], ['in-option-fee', 75000], ['in-rent', 15000],
+   ['in-sqft', 4316], ['in-refi-costs', 5000]].forEach(([id, val]) => {
+    const el = $(id); if (el) el.value = fmtComma(val);
   });
 
   // Track if refi-year was manually touched
