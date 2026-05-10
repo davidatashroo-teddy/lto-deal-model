@@ -13,6 +13,29 @@
   <p>39 Orinda View · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
 </header>
 
+<!-- ── Plain-language explainer (collapsible) ──────────────────────────── -->
+<details class="explainer">
+  <summary><span class="arrow">▶</span> How this calculator works — tap to expand</summary>
+  <div class="explainer-body">
+    <div class="explainer-block">
+      <h4>🏘 What's the deal?</h4>
+      <p>Instead of buying a house today, you move in and pay rent for 18 months. At the end, you buy it at a pre-agreed price called the <strong style="color:#93c5fd">strike price</strong>. You also pay an upfront <strong style="color:#93c5fd">option fee</strong> that locks in your right to buy — think of it as a reservation deposit.</p>
+    </div>
+    <div class="explainer-block">
+      <h4>📊 What are we adding up?</h4>
+      <p>For each scenario, we add up every dollar you'd spend over your full hold period: rent, down payment, closing costs, mortgage payments, property taxes, and insurance. That total is the <strong style="color:#93c5fd">lifetime cost</strong> — the true price of owning the home.</p>
+    </div>
+    <div class="explainer-block">
+      <h4>🔀 What's the breakeven price?</h4>
+      <p>The most important number. It's the price at which buying a home outright today would cost you the exact same total as doing the deal. If comparable homes are priced <em>above</em> breakeven, the deal wins. Below breakeven, buying today wins.</p>
+    </div>
+    <div class="explainer-block">
+      <h4>📐 How is that calculated?</h4>
+      <p>Every cost in a conventional purchase scales proportionally with the home price (taxes, insurance, mortgage, down payment). So we can solve for the exact breakeven price using algebra — no guessing required. Change any input and the breakeven updates instantly.</p>
+    </div>
+  </div>
+</details>
+
 <div class="page">
 
   <!-- ══════════════════════════════════════════════════════════════════
@@ -27,12 +50,12 @@
       <div class="input-grid">
 
         <div class="input-row">
-          <label for="in-total">Total consideration to seller</label>
+          <label for="in-total"><span class="tip-wrap">Total consideration to seller<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total amount the seller will ultimately receive — option fee + rent payments + strike price. This is the headline number in your offer.</span></span></label>
           <input type="number" id="in-total" value="3100000" step="10000" />
         </div>
 
         <div class="input-row">
-          <label for="in-option-fee">Option consideration at signing</label>
+          <label for="in-option-fee"><span class="tip-wrap">Option consideration at signing<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">An upfront fee paid when you sign the lease. It gives you the right (the "option") to buy at the end. It counts toward the total consideration but does NOT reduce the strike price.</span></span></label>
           <input type="number" id="in-option-fee" value="75000" step="5000" />
           <div class="hint">Non-creditable to strike price</div>
         </div>
@@ -63,7 +86,7 @@
       <!-- Strike price with manual override -->
       <div class="input-grid two-col" style="margin-top:12px;">
         <div class="input-row">
-          <label for="in-strike">Strike price at close</label>
+          <label for="in-strike"><span class="tip-wrap">Strike price at close<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The price you'll pay to buy the home at the end of the lease. By default it's auto-calculated as: total − option fee − (rent × months). You can override this manually.</span></span></label>
           <input type="number" id="in-strike" step="5000" class="auto-computed" readonly />
           <div class="override-row">
             <label class="toggle-switch">
@@ -141,13 +164,13 @@
         </div>
 
         <div class="input-row">
-          <label for="in-close-rate">Mortgage rate at deal close (%)</label>
+          <label for="in-close-rate"><span class="tip-wrap">Mortgage rate at deal close (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The interest rate you expect to get on your mortgage when the lease ends and you close on the purchase. Lower than today's rate because rates may fall by then.</span></span></label>
           <input type="number" id="in-close-rate" value="5.40" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
         <div class="input-row">
-          <label for="in-today-rate">Conventional rate available today (%)</label>
+          <label for="in-today-rate"><span class="tip-wrap">Conventional rate available today (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The mortgage rate you'd get if you bought a home outright today instead of doing the deal. Used to price all three conventional purchase scenarios.</span></span></label>
           <input type="number" id="in-today-rate" value="6.40" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
@@ -273,7 +296,7 @@
        SECTION 2 — SCENARIO RESULTS
   ══════════════════════════════════════════════════════════════════════ -->
   <section>
-    <div class="section-title">Lifetime Cost — 4 Scenarios</div>
+    <div class="section-title"><span class="tip-wrap">Lifetime Cost — 4 Scenarios<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Every dollar you'd spend over your hold period: rent (lease only), down payment, closing costs, all mortgage payments, property taxes, and insurance. This is the true total cost of owning the home under each scenario.</span></span></div>
     <div class="scenarios-grid">
 
       <!-- Deal -->
@@ -286,14 +309,14 @@
         </div>
         <div id="deal-savings"></div>
         <div class="stat-row"><span class="stat-label">Loan amount</span><span class="stat-val" id="deal-loan">—</span></div>
-        <div class="stat-row"><span class="stat-label">Monthly P&I (initial)</span><span class="stat-val" id="deal-initPI">—</span></div>
-        <div class="stat-row"><span class="stat-label">Monthly P&I (post-refi)</span><span class="stat-val" id="deal-refiPI">—</span></div>
-        <div class="stat-row"><span class="stat-label">Monthly rent (lease period)</span><span class="stat-val" id="deal-lease-mo">—</span></div>
-        <div class="stat-row"><span class="stat-label">Monthly housing after close</span><span class="stat-val" id="deal-housing-mo">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Monthly P&I (initial)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">Principal + interest payment during the initial rate period. For a 7/1 ARM this applies for the first 7 years; for a 30-yr fixed it's the same for the whole term.</span></span></span><span class="stat-val" id="deal-initPI">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Monthly P&I (post-refi)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">Your new payment after refinancing at the projected lower rate. Only applies to ARM scenarios. "n/a" means you're on a 30-yr fixed with no refi modeled.</span></span></span><span class="stat-val" id="deal-refiPI">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Monthly rent (lease period)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The rent you pay during the lease (before you close on the purchase). For conventional purchase scenarios, you'd be in the new home from day one — so this is n/a.</span></span></span><span class="stat-val" id="deal-lease-mo">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Monthly housing after close<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">Your total monthly cost once you own the home: mortgage P&I + property tax + insurance. This is what you'd budget for each month.</span></span></span><span class="stat-val" id="deal-housing-mo">—</span></div>
         <div class="stat-row"><span class="stat-label">Property tax / mo</span><span class="stat-val" id="deal-tax-mo">—</span></div>
         <div class="stat-row"><span class="stat-label">Insurance / mo</span><span class="stat-val" id="deal-ins-mo">—</span></div>
-        <div class="stat-row"><span class="stat-label">Total interest paid</span><span class="stat-val" id="deal-total-int">—</span></div>
-        <div class="stat-row"><span class="stat-label">Effective $/sqft</span><span class="stat-val" id="deal-eff-sqft">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Total interest paid<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total dollars paid in mortgage interest over the hold period — the cost of borrowing. This is part of the lifetime cost total above.</span></span></span><span class="stat-val" id="deal-total-int">—</span></div>
+        <div class="stat-row"><span class="stat-label"><span class="tip-wrap">Effective $/sqft<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">Total consideration (or purchase price) divided by square footage. A quick apples-to-apples comparison of what you're paying per square foot under each scenario.</span></span></span><span class="stat-val" id="deal-eff-sqft">—</span></div>
       </div>
 
       <!-- Scenario A -->
@@ -364,7 +387,7 @@
         <span class="be-price" id="out-be-price">—</span>
         <span class="be-sqft" id="out-be-sqft">—</span>
       </div>
-      <div class="be-caption">Breakeven comparable purchase price — buy conventionally today at this price = same lifetime cost as the deal</div>
+      <div class="be-caption"><span class="tip-wrap">Breakeven comparable purchase price<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">If you could buy a comparable home today at exactly this price, your 30-year lifetime cost would be identical to the deal. Homes priced above this number make the deal look better. Below this number, buying today is the better value.</span></span> — the deal's "equivalent" conventional price</div>
     </div>
   </section>
 
@@ -372,7 +395,7 @@
        SECTION 3 — BAR CHART
   ══════════════════════════════════════════════════════════════════════ -->
   <section>
-    <div class="section-title">Lifetime Cost Comparison</div>
+    <div class="section-title"><span class="tip-wrap">Lifetime Cost Comparison<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Bars are color-coded relative to the proposed deal. Green = that scenario costs significantly more than the deal (deal wins). Red = that scenario is cheaper than the deal (buying today wins). Gray = roughly equivalent.</span></span></div>
     <div class="card">
       <div class="chart-wrap">
         <svg id="bar-chart" class="bar-chart" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -390,7 +413,7 @@
        SECTION 4 — BREAKEVEN SENSITIVITY TABLE
   ══════════════════════════════════════════════════════════════════════ -->
   <section>
-    <div class="section-title">Reverse Analysis — Breakeven Price Sensitivity</div>
+    <div class="section-title"><span class="tip-wrap">Reverse Analysis — Breakeven Price Sensitivity<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Shows what the deal is worth in terms of a comparable purchase price. Each row is a different $/sqft for a conventional home. "vs. Deal" shows whether that home would cost more or less than the deal over the full hold period.</span></span></div>
     <div class="card">
       <div class="table-wrap">
         <table>
@@ -417,7 +440,7 @@
        SECTION 5 — SENSITIVITY PANEL
   ══════════════════════════════════════════════════════════════════════ -->
   <section>
-    <div class="section-title">Sensitivity Analysis</div>
+    <div class="section-title"><span class="tip-wrap">Sensitivity Analysis<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Pick one assumption to flex (like mortgage rate or hold period) and see how the deal cost and breakeven price change across a range of values. All other inputs stay at their current settings.</span></span></div>
     <div class="card">
       <div class="sens-controls">
         <label for="in-sens-dim">Flex:</label>
@@ -449,6 +472,21 @@
 
 </div><!-- /page -->
 
+<script>
+// Mobile tooltip toggle — click ⓘ to open/close
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.tip-icon');
+  if (btn) {
+    e.stopPropagation();
+    const wrap = btn.closest('.tip-wrap');
+    const isOpen = wrap.classList.contains('tip-open');
+    document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
+    if (!isOpen) wrap.classList.add('tip-open');
+    return;
+  }
+  document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
+});
+</script>
 <script src="app.js"></script>
 </body>
 </html>
