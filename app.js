@@ -15,18 +15,22 @@ const COUNTY_INS_PER_M = {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const DEFAULTS = {
-  total: 3100000, optionFee: 75000, monthlyRent: 15000, leaseMonths: 18,
+  total: 3200000, optionFee: 75000, monthlyRent: 12000, leaseMonths: 12,
   strikeAuto: true, signingDate: TODAY,
-  sqft: 4316, county: 'Contra Costa County, CA', taxRate: 1.00, taxEsc: 2.00,
-  product: '7-1arm', downPct: 20, closingPct: 2.00,
-  closeRate: 5.40, todayRate: 6.40, holdYears: 30,
+  sqft: 3907, county: 'Contra Costa County, CA', taxRate: 1.25, taxEsc: 2.00,
+  product: '30yr', downPct: 20, closingPct: 2.00,
+  closeRate: 5.00, todayRate: 5.75, holdYears: 30,
   refiYear: 7, refiRate: 4.90, refiCosts: 5000,
   insAuto: true, insEsc: 3.00,
-  scALabel: 'What we offered', scASqft: 632,
-  scBLabel: "What we'd counter at", scBSqft: 707,
-  scCLabel: 'What seller wants', scCSqft: 788,
+  scALabel: 'What we offered', scASqft: 780.65,
+  scBLabel: "What we'd counter at", scBSqft: 793,
+  scCLabel: 'What seller wants', scCSqft: 870,
   sensDim: 'rate',
+  showBC: false,
 };
+
+// Lease lengths offered anywhere in the model. 24mo removed per decision 2026-08-17.
+const LEASE_OPTIONS = [12, 18];
 
 // ─── Pure math ────────────────────────────────────────────────────────────────
 
@@ -207,6 +211,8 @@ function readInputs() {
   const scBSqft    = v('in-sc-b-sqft');
   const scCSqft    = v('in-sc-c-sqft');
   const sensDim    = str('in-sens-dim');
+  const showBCEl   = $('in-show-bc');
+  const showBC     = showBCEl ? showBCEl.checked : DEFAULTS.showBC;
 
   const inp = {
     total, optionFee, monthlyRent, leaseMonths, strikeAuto,
@@ -217,7 +223,7 @@ function readInputs() {
     scALabel, scBLabel, scCLabel,
     scASqft, scBSqft, scCSqft,
     scAPrice: scASqft * sqft, scBPrice: scBSqft * sqft, scCPrice: scCSqft * sqft,
-    sensDim,
+    sensDim, showBC,
   };
 
   inp.strike = strikeAuto ? autoStrike(inp) : v('in-strike');
@@ -320,8 +326,18 @@ function recalculate() {
   set('out-be-price', fmt$(be));
   set('out-be-sqft', inp.sqft > 0 ? fmtSqft(be / inp.sqft) : '—');
 
+  // Scenario B/C are hidden by default — the working comparison is
+  // Proposed Deal (what we'd counter at) vs Scenario A (what we offered).
+  const showBC = inp.showBC;
+  document.body.classList.toggle('hide-bc', !showBC);
+
   // Comparison baseline
-  const compareBase = $('in-compare-base')?.value || 'deal';
+  let compareBase = $('in-compare-base')?.value || 'deal';
+  if (!showBC && (compareBase === 'scb' || compareBase === 'scc')) {
+    compareBase = 'deal';
+    const cbEl = $('in-compare-base');
+    if (cbEl) cbEl.value = 'deal';
+  }
   const compareOpts = {
     deal: { cost: deal,   label: 'proposed deal' },
     sca:  { cost: costA,  label: (inp.scALabel || 'Scen A').toLowerCase() },
@@ -332,19 +348,24 @@ function recalculate() {
   const { cost: compareCost, label: compareLabel } = compareOpts[compareBase] || compareOpts.deal;
 
   // Write cards
-  writeCard('deal', '39 Orinda View (Lease-to-Own)', deal, compareCost, compareLabel, inp.strike, inp, true);
+  writeCard('deal', '2 Crane Court (Lease-to-Own)', deal, compareCost, compareLabel, inp.strike, inp, true);
   writeCard('sca',  inp.scALabel, costA, compareCost, compareLabel, inp.scAPrice, inp, false);
-  writeCard('scb',  inp.scBLabel, costB, compareCost, compareLabel, inp.scBPrice, inp, false);
-  writeCard('scc',  inp.scCLabel, costC, compareCost, compareLabel, inp.scCPrice, inp, false);
+  if (showBC) {
+    writeCard('scb', inp.scBLabel, costB, compareCost, compareLabel, inp.scBPrice, inp, false);
+    writeCard('scc', inp.scCLabel, costC, compareCost, compareLabel, inp.scCPrice, inp, false);
+  }
 
   // Bar chart (colors relative to selected comparison baseline)
-  drawChart([
+  const chartRows = [
     { label: 'Proposed Deal', cost: deal },
     { label: inp.scALabel || 'Scenario A', cost: costA },
-    { label: inp.scBLabel || 'Scenario B', cost: costB },
-    { label: inp.scCLabel || 'Scenario C', cost: costC },
-    { label: 'Breakeven', cost: beCost },
-  ], compareCost);
+  ];
+  if (showBC) {
+    chartRows.push({ label: inp.scBLabel || 'Scenario B', cost: costB });
+    chartRows.push({ label: inp.scCLabel || 'Scenario C', cost: costC });
+  }
+  chartRows.push({ label: 'Breakeven', cost: beCost });
+  drawChart(chartRows, compareCost);
 
   // Breakeven sensitivity table
   updateBeTable(inp, deal);
@@ -412,11 +433,25 @@ function drawChart(scenarios, dealCost) {
 let beRows = []; // { sqft: number } — user-defined rows
 
 function initBeRows(inp) {
-  const be = solveBreakeven(dealLifetime(inp), inp);
-  beRows = [
-    { sqft: Math.round(be / inp.sqft), isBreakeven: true },
-    { sqft: 700 }, { sqft: 720 }, { sqft: 750 }, { sqft: 780 },
-  ];
+  // Anchor the rows on the numbers that actually matter for this deal:
+  // the breakeven itself, Scenario A ("what we offered"), and a spread
+  // around breakeven. Previously these were hardcoded at 700-780 $/sqft,
+  // which was stale the moment house sqft or the offer changed.
+  const be    = solveBreakeven(dealLifetime(inp), inp);
+  const beSf  = be / (inp.sqft || 1);
+  const scASf = inp.scASqft || 0;
+  const seen  = new Set();
+  const push  = (sf, flags) => {
+    const r = Math.round(sf);
+    if (!isFinite(r) || r <= 0 || seen.has(r)) return;
+    seen.add(r);
+    beRows.push({ sqft: r, ...(flags || {}) });
+  };
+  beRows = [];
+  push(beSf, { isBreakeven: true });
+  if (scASf > 0) push(scASf);
+  [-40, -20, 20, 40].forEach(d => push(beSf + d));
+  beRows.sort((a, b) => a.sqft - b.sqft);
 }
 
 function renderBeTable(inp, deal) {
@@ -444,6 +479,14 @@ function renderBeTable(inp, deal) {
 
 function updateBeTable(inp, deal) {
   if (beRows.length === 0) initBeRows(inp);
+  // The breakeven row was pinned at whatever the breakeven was on first render
+  // and never moved again, so it drifted out of agreement with the headline
+  // breakeven number as soon as any input changed. Re-anchor it every pass.
+  const beRow = beRows.find(r => r.isBreakeven);
+  if (beRow) {
+    const be = solveBreakeven(deal, inp);
+    beRow.sqft = Math.round(be / (inp.sqft || 1));
+  }
   renderBeTable(inp, deal);
 }
 
@@ -467,7 +510,7 @@ window.addBeRow = () => {
 const SENS_DIMS = {
   rate:       { label: 'Mortgage rate at close', vals: v => [v-1, v-.5, v, v+.5, v+1].map(x => ({lbl: fmtPct(x), mod: {closeRate: x}})), base: inp => inp.closeRate },
   hold:       { label: 'Hold period (years)',    vals: () => [5,7,10,15,30].map(x => ({lbl: x+' yr', mod: {holdYears: x}})), base: () => null },
-  lease:      { label: 'Lease length (months)',  vals: () => [12,14,18,24,26].map(x => ({lbl: x+' mo', mod: {leaseMonths: x}})), base: () => null },
+  lease:      { label: 'Lease length (months)',  vals: () => LEASE_OPTIONS.map(x => ({lbl: x+' mo', mod: {leaseMonths: x}})), base: () => null },
   taxesc:     { label: 'Property tax escalation',vals: () => [1,2,3].map(x => ({lbl: fmtPct(x), mod: {taxEsc: x}})), base: () => null },
   refirate:   { label: 'Refinance rate (ARM)',   vals: v => [v-1, v-.5, v, v+.5].map(x => ({lbl: fmtPct(x), mod: {refiRate: x}})), base: inp => inp.refiRate },
   refiyear:   { label: 'Refinance year (ARM)',   vals: () => [{lbl:'Yr 5',mod:{refiYear:5}},{lbl:'Yr 7',mod:{refiYear:7}},{lbl:'Yr 10',mod:{refiYear:10}},{lbl:'Never',mod:{refiYear:999}}], base: () => null },
@@ -478,9 +521,13 @@ function updateSensPanel(inp) {
   if (!dim) return;
   const base = dim.base(inp);
   const rows = dim.vals(base);
-  const scBPrice = inp.scBPrice;
+  // Benchmark is Scenario A — "what we actually offered". The proposed deal is the
+  // thing being flexed, so every row asks: at this assumption, does the counter
+  // beat the offer we already made?
+  const benchPrice = inp.scAPrice;
+  const benchLabel = inp.scALabel || 'Scenario A';
 
-  let html = `<thead><tr><th>${dim.label}</th><th>Deal cost</th><th>Breakeven price</th><th>Savings vs Scen B</th></tr></thead><tbody>`;
+  let html = `<thead><tr><th>${dim.label}</th><th>Deal cost</th><th>Breakeven price</th><th>Savings vs ${benchLabel}</th></tr></thead><tbody>`;
   rows.forEach(row => {
     const modInp = Object.assign({}, inp, row.mod);
     // Recompute derived values if needed
@@ -490,7 +537,7 @@ function updateSensPanel(inp) {
     }
     const dc  = dealLifetime(modInp);
     const be  = solveBreakeven(dc, modInp);
-    const cB  = convLifetime(scBPrice, modInp);
+    const cB  = convLifetime(benchPrice, modInp);
     const sav = cB - dc;
     html += `<tr>
       <td>${row.lbl}</td>
@@ -520,6 +567,7 @@ function encodeState() {
     sdim: inp.sensDim,
     sauto: inp.strikeAuto ? 1 : 0,
     iauto: inp.insAuto ? 1 : 0,
+    bc: inp.showBC ? 1 : 0,
   });
   if (!inp.strikeAuto) p.set('strike', inp.strike);
   if (!inp.insAuto)    p.set('ins', inp.annIns);
@@ -552,6 +600,7 @@ function decodeState() {
   set('in-sc-a-sqft', 'sasqft', 1); set('in-sc-b-sqft', 'sbsqft', 1); set('in-sc-c-sqft', 'scsqft', 1);
   set('in-sens-dim', 'sdim');
   setChk('in-strike-auto', 'sauto'); setChk('in-ins-auto', 'iauto');
+  setChk('in-show-bc', 'bc');
   if (p.has('strike')) { set('in-strike', 'strike', 1); }
   if (p.has('ins'))    { set('in-insurance', 'ins', 1); }
 }
@@ -652,7 +701,7 @@ function updateSectionB() {
   const fixedStrike = inp.strike;
 
   // Part 1: fixed strike, varying lease
-  const p1 = [12, 18, 24].map(mo => {
+  const p1 = LEASE_OPTIONS.map(mo => {
     const total = inp.optionFee + mo * inp.monthlyRent + fixedStrike;
     return structRow(
       `${mo}mo lease`,
@@ -662,9 +711,9 @@ function updateSectionB() {
     );
   });
 
-  // Part 2: fixed lease (18 & 24mo), solve strike for two targets
+  // Part 2: fixed lease, solve strike for two targets
   const p2 = [];
-  [18, 24].forEach(mo => {
+  LEASE_OPTIONS.forEach(mo => {
     [inp.total, sellerAsk].forEach(target => {
       const strike = solveStrikeForTotal(target, mo, inp);
       if (strike < 0) return;
@@ -699,7 +748,7 @@ function updateSectionB() {
   tbody.innerHTML =
     divider(`Part 1 — Fixed strike (${fmt$(fixedStrike)}), lease length as the lever`, 8) +
     p1.map(renderStructRow).join('') +
-    divider('Part 2 — Fixed lease (18mo or 24mo), strike as the lever', 8) +
+    divider(`Part 2 — Fixed lease (${LEASE_OPTIONS.map(m => m + 'mo').join(' or ')}), strike as the lever`, 8) +
     p2.map(renderStructRow).join('') +
     renderStructRow(blRow);
 
@@ -734,7 +783,7 @@ function init() {
     'in-refi-year','in-refi-rate','in-refi-costs',
     'in-insurance','in-ins-esc','in-signing-date',
     'in-sc-a-label','in-sc-b-label','in-sc-c-label',
-    'in-sens-dim',
+    'in-sens-dim', 'in-show-bc',
   ];
   fields.forEach(id => {
     const el = $(id); if (!el) return;
@@ -796,7 +845,7 @@ function init() {
   });
 
   // Initialize Section B $/sqft fields
-  const _defSqft = 4316;
+  const _defSqft = DEFAULTS.sqft;
   if (_fvSEl) _fvSEl.value = Math.round(3050000 / _defSqft);
   if (_saSEl) _saSEl.value = Math.round(3400000 / _defSqft);
 

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lease-to-Own Scenario Model — 39 Orinda View</title>
+  <title>Lease-to-Own Scenario Model — 2 Crane Court</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header>
   <h1>🏘 Lease-to-Own Scenario Model</h1>
-  <p>39 Orinda View · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
+  <p>2 Crane Court · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
 </header>
 
 <!-- ── Plain-language explainer (collapsible) ──────────────────────────── -->
@@ -19,7 +19,7 @@
   <div class="explainer-body">
     <div class="explainer-block">
       <h4>🏘 What's the deal?</h4>
-      <p>Instead of buying a house today, you move in and pay rent for 18 months. At the end, you buy it at a pre-agreed price called the <strong style="color:#93c5fd">strike price</strong>. You also pay an upfront <strong style="color:#93c5fd">option fee</strong> that locks in your right to buy — think of it as a reservation deposit.</p>
+      <p>Instead of buying a house today, you move in and pay rent for the lease term (12 months by default). At the end, you buy it at a pre-agreed price called the <strong style="color:#93c5fd">strike price</strong>. You also pay an upfront <strong style="color:#93c5fd">option fee</strong> that locks in your right to buy — think of it as a reservation deposit.</p>
     </div>
     <div class="explainer-block">
       <h4>📊 What are we adding up?</h4>
@@ -51,7 +51,7 @@
 
         <div class="input-row">
           <label for="in-total"><span class="tip-wrap">Total consideration to seller<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total amount the seller will ultimately receive — option fee + rent payments + strike price. This is the headline number in your offer.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-total" value="3,100,000" />
+          <input type="text" inputmode="numeric" id="in-total" value="3,200,000" />
         </div>
 
         <div class="input-row">
@@ -62,12 +62,12 @@
 
         <div class="input-row">
           <label for="in-rent">Monthly rent during occupancy</label>
-          <input type="text" inputmode="numeric" id="in-rent" value="15,000" />
+          <input type="text" inputmode="numeric" id="in-rent" value="12,000" />
         </div>
 
         <div class="input-row">
           <label for="in-lease-months">Lease length (months)</label>
-          <input type="number" id="in-lease-months" value="18" min="1" max="60" step="1" />
+          <input type="number" id="in-lease-months" value="12" min="1" max="18" step="1" />
         </div>
 
         <div class="input-row">
@@ -104,7 +104,7 @@
 
         <div class="input-row">
           <label for="in-sqft">Square footage</label>
-          <input type="text" inputmode="numeric" id="in-sqft" value="4,316" />
+          <input type="text" inputmode="numeric" id="in-sqft" value="3,907" />
         </div>
 
         <div class="input-row">
@@ -130,7 +130,7 @@
 
         <div class="input-row">
           <label for="in-tax-rate">Property tax rate (%)</label>
-          <input type="number" id="in-tax-rate" value="1.00" step="0.05" min="0" />
+          <input type="number" id="in-tax-rate" value="1.25" step="0.05" min="0" />
         </div>
 
         <div class="input-row">
@@ -149,7 +149,7 @@
           <select id="in-product">
             <option value="7-1arm">7/1 ARM</option>
             <option value="5-1arm">5/1 ARM</option>
-            <option value="30yr">30-year fixed</option>
+            <option value="30yr" selected>30-year fixed</option>
           </select>
         </div>
 
@@ -165,13 +165,13 @@
 
         <div class="input-row">
           <label for="in-close-rate"><span class="tip-wrap">Mortgage rate at deal close (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The interest rate you expect to get on your mortgage when the lease ends and you close on the purchase. Lower than today's rate because rates may fall by then.</span></span></label>
-          <input type="number" id="in-close-rate" value="5.40" step="0.125" min="0" />
+          <input type="number" id="in-close-rate" value="5.00" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
         <div class="input-row">
           <label for="in-today-rate"><span class="tip-wrap">Conventional rate available today (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The mortgage rate you'd get if you bought a home outright today instead of doing the deal. Used to price all three conventional purchase scenarios.</span></span></label>
-          <input type="number" id="in-today-rate" value="6.40" step="0.125" min="0" />
+          <input type="number" id="in-today-rate" value="5.75" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
@@ -231,6 +231,12 @@
 
       <!-- §6 Comparable Purchase Scenarios -->
       <div class="input-group-label">🔀 Comparable Purchase Scenarios</div>
+      <div class="input-row" style="margin-bottom:10px;">
+        <label for="in-show-bc" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="in-show-bc" />
+          <span class="tip-wrap">Show Scenarios B &amp; C<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Off by default. The working comparison is Proposed Deal (what we'd counter at) vs Scenario A (what we actually offered). Turn this on only if you want the extra reference points back — they are excluded from the cards, the chart, and the comparison baseline while hidden.</span></span>
+        </label>
+      </div>
       <div style="display:flex; flex-direction:column; gap:12px;">
 
         <!-- Scenario A -->
@@ -242,17 +248,17 @@
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-a-sqft">$/sqft</label>
-              <input type="number" id="in-sc-a-sqft" value="632" step="1" />
+              <input type="number" id="in-sc-a-sqft" value="780.65" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-a-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-a-price" value="2,727,712" />
+              <input type="text" inputmode="numeric" id="in-sc-a-price" value="3,050,000" />
             </div>
           </div>
         </div>
 
         <!-- Scenario B -->
-        <div>
+        <div class="bc-only">
           <div class="scen-header-row">
             <span class="scen-badge badge-b">B</span>
             <input type="text" id="in-sc-b-label" value="What we'd counter at" style="flex:1; font-size:.82rem; font-weight:600;" />
@@ -260,17 +266,17 @@
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-b-sqft">$/sqft</label>
-              <input type="number" id="in-sc-b-sqft" value="707" step="1" />
+              <input type="number" id="in-sc-b-sqft" value="793" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-b-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-b-price" value="3,051,412" />
+              <input type="text" inputmode="numeric" id="in-sc-b-price" value="3,098,251" />
             </div>
           </div>
         </div>
 
         <!-- Scenario C -->
-        <div>
+        <div class="bc-only">
           <div class="scen-header-row">
             <span class="scen-badge badge-c">C</span>
             <input type="text" id="in-sc-c-label" value="What seller wants" style="flex:1; font-size:.82rem; font-weight:600;" />
@@ -278,11 +284,11 @@
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-c-sqft">$/sqft</label>
-              <input type="number" id="in-sc-c-sqft" value="788" step="1" />
+              <input type="number" id="in-sc-c-sqft" value="870" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-c-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-c-price" value="3,400,808" />
+              <input type="text" inputmode="numeric" id="in-sc-c-price" value="3,399,090" />
             </div>
           </div>
         </div>
@@ -302,8 +308,8 @@
       <select id="in-compare-base">
         <option value="deal">Proposed Deal</option>
         <option value="sca">Scenario A</option>
-        <option value="scb">Scenario B</option>
-        <option value="scc">Scenario C</option>
+        <option value="scb" class="bc-only">Scenario B</option>
+        <option value="scc" class="bc-only">Scenario C</option>
         <option value="be">Breakeven</option>
       </select>
       <span style="font-size:.72rem; color:var(--muted); font-weight:400">— chips and chart colors update to show each option's delta vs the selected baseline</span>
@@ -314,7 +320,7 @@
       <div class="output-card deal">
         <h3><span class="tip-wrap">Proposed Deal<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">This is the LTO deal as configured in Deal Parameters above. Total = option fee + rent × months + strike price. The rate used is your "mortgage rate at close," not today's rate.</span></span></h3>
         <div class="card-price" id="deal-price"></div>
-        <div class="card-label" id="deal-label">39 Orinda View (Lease-to-Own)</div>
+        <div class="card-label" id="deal-label">2 Crane Court (Lease-to-Own)</div>
         <div class="big-stat">
           <div class="amount" id="deal-lifetime">—</div>
           <div class="caption">Total lifetime cost (30-yr hold)</div>
@@ -481,7 +487,7 @@
     <div class="section-title">
       <span class="tip-wrap">Deal Structure Comparison
         <button class="tip-icon" tabindex="-1">i</button>
-        <span class="tip-bubble wide">Two-part analysis. Part 1: keep the strike fixed and see how different lease lengths change the total you pay and your lifetime cost. Part 2: cap the lease at 18 or 24 months and solve for what strike price is needed to hit each target total. The baseline row at the bottom is always "buy a comparable home at my fair value today."</span>
+        <span class="tip-bubble wide">Two-part analysis. Part 1: keep the strike fixed and see how different lease lengths change the total you pay and your lifetime cost. Part 2: cap the lease at each offered length (12 or 18 months) and solve for what strike price is needed to hit each target total. The baseline row at the bottom is always "buy a comparable home at my fair value today."</span>
       </span>
     </div>
 
@@ -505,7 +511,7 @@
         <label for="in-seller-ask">
           <span class="tip-wrap">Seller's asking total
             <button class="tip-icon" tabindex="-1">i</button>
-            <span class="tip-bubble">The total consideration the seller is asking for. Used in Part 2 to solve: "if I'm capped at 18 or 24 months of lease, what strike price gets the seller to this number?"</span>
+            <span class="tip-bubble">The total consideration the seller is asking for. Used in Part 2 to solve: "if I'm capped at 12 or 18 months of lease, what strike price gets the seller to this number?"</span>
           </span>
         </label>
         <div class="price-sqft-row">

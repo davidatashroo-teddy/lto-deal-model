@@ -2,9 +2,9 @@
 
 **Built by:** Teddy (Claude Code)  
 **Owner:** David Atashroo  
-**Live:** https://davidatashroo-teddy.github.io/lto-scenario-model/
+**Live:** https://davidatashroo-teddy.github.io/lto-deal-model/
 
-A single-page financial model for analyzing the economics of a lease-to-own real estate purchase versus buying conventionally today. Built specifically for the 39 Orinda View deal, but parameterized for any LTO structure.
+A single-page financial model for analyzing the economics of a lease-to-own real estate purchase versus buying conventionally today. Built specifically for the 2 Crane Court deal, but parameterized for any LTO structure.
 
 ## What it does
 
@@ -47,7 +47,7 @@ breakeven_price = (deal_lifetime_cost - c) / k
 
 ## Validation test cases
 
-**Test 1 — 39 Orinda View base case (30-year fixed)**
+**Test 1 — 2 Crane Court base case (30-year fixed)**
 - Inputs: $3.1M total, $75K option fee, $15K/mo rent, 18 months, 5.40% close rate, 6.40% today rate, 30-yr fixed, 30-yr hold, 1% tax, 2% escalation, $4,683 insurance (auto), 4316 sqft
 - Expected deal lifetime cost: ~$6.5–6.6M
 - Expected breakeven price: ~$2.65–2.75M (~$615–635/sqft)

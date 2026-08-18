@@ -615,3 +615,16 @@ td.del-cell { text-align: center; }
   align-items: flex-end;
 }
 .scen-inputs-row .input-row { flex: 1; }
+
+/* ── Scenario B/C hiding (default state) ──────────────────────────────────
+   Proposed Deal vs Scenario A is the working comparison. B & C are opt-in
+   via the "Show Scenarios B & C" toggle. Added 2026-08-17. */
+body.hide-bc .bc-only,
+body.hide-bc .output-card.scen-b,
+body.hide-bc .output-card.scen-c {
+  display: none !important;
+}
+/* With B & C hidden only Deal + Scenario A remain, so widen them */
+@media (min-width: 1000px) {
+  body.hide-bc .scenarios-grid { grid-template-columns: 1fr 1fr; }
+}
