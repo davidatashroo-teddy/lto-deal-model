@@ -15,11 +15,11 @@ const COUNTY_INS_PER_M = {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const DEFAULTS = {
-  total: 3200000, optionFee: 75000, monthlyRent: 12000, leaseMonths: 12,
+  total: 3100000, optionFee: 25000, monthlyRent: 10000, leaseMonths: 12,
   strikeAuto: true, signingDate: TODAY,
   sqft: 3907, county: 'Contra Costa County, CA', taxRate: 1.25, taxEsc: 2.00,
   product: '30yr', downPct: 20, closingPct: 2.00,
-  closeRate: 5.00, todayRate: 5.75, holdYears: 30,
+  closeRate: 5.25, todayRate: 5.75, holdYears: 30,
   refiYear: 7, refiRate: 4.90, refiCosts: 5000,
   insAuto: true, insEsc: 3.00,
   scALabel: 'What we offered', scASqft: 780.65,
@@ -27,10 +27,17 @@ const DEFAULTS = {
   scCLabel: 'What seller wants', scCSqft: 870,
   sensDim: 'rate',
   showBC: false,
+  compareBase: 'sca',
 };
 
 // Lease lengths offered anywhere in the model. 24mo removed per decision 2026-08-17.
 const LEASE_OPTIONS = [12, 18];
+
+// Section B Part 2 solves the strike needed to hit this much ABOVE the
+// configured total consideration. Set 2026-08-17.
+const PART2_PREMIUM = 50000;
+// Part 2 only models a 12-month lease now (18mo row removed 2026-08-17).
+const PART2_LEASE_MONTHS = 12;
 
 // ─── Pure math ────────────────────────────────────────────────────────────────
 
@@ -332,7 +339,7 @@ function recalculate() {
   document.body.classList.toggle('hide-bc', !showBC);
 
   // Comparison baseline
-  let compareBase = $('in-compare-base')?.value || 'deal';
+  let compareBase = $('in-compare-base')?.value || DEFAULTS.compareBase;
   if (!showBC && (compareBase === 'scb' || compareBase === 'scc')) {
     compareBase = 'deal';
     const cbEl = $('in-compare-base');
@@ -568,6 +575,7 @@ function encodeState() {
     sauto: inp.strikeAuto ? 1 : 0,
     iauto: inp.insAuto ? 1 : 0,
     bc: inp.showBC ? 1 : 0,
+    cmp: ($('in-compare-base')?.value || DEFAULTS.compareBase),
   });
   if (!inp.strikeAuto) p.set('strike', inp.strike);
   if (!inp.insAuto)    p.set('ins', inp.annIns);
@@ -601,6 +609,7 @@ function decodeState() {
   set('in-sens-dim', 'sdim');
   setChk('in-strike-auto', 'sauto'); setChk('in-ins-auto', 'iauto');
   setChk('in-show-bc', 'bc');
+  set('in-compare-base', 'cmp');
   if (p.has('strike')) { set('in-strike', 'strike', 1); }
   if (p.has('ins'))    { set('in-insurance', 'ins', 1); }
 }
@@ -711,21 +720,23 @@ function updateSectionB() {
     );
   });
 
-  // Part 2: fixed lease, solve strike for two targets
+  // Part 2: single 12-month row — solve the strike needed to hit
+  // (configured total + PART2_PREMIUM). The 18mo row and the seller's-ask
+  // row were removed 2026-08-17.
   const p2 = [];
-  LEASE_OPTIONS.forEach(mo => {
-    [inp.total, sellerAsk].forEach(target => {
-      const strike = solveStrikeForTotal(target, mo, inp);
-      if (strike < 0) return;
-      const tLabel = target === inp.total ? `${fmt$(target)} proposed` : `${fmt$(target)} seller's ask`;
+  {
+    const mo     = PART2_LEASE_MONTHS;
+    const target = inp.total + PART2_PREMIUM;
+    const strike = solveStrikeForTotal(target, mo, inp);
+    if (strike > 0) {
       p2.push(structRow(
-        `${mo}mo · strike to hit ${tLabel}`,
-        `${fmt$(strike)} strike · closes ${addMonths(inp.signingDate, mo)}`,
+        `${mo}mo · strike to hit ${fmt$(target)}`,
+        `${fmt$(strike)} strike · ${fmt$(PART2_PREMIUM)} above the ${fmt$(inp.total)} proposed · closes ${addMonths(inp.signingDate, mo)}`,
         mo, strike, target, inp, baselineCost,
         { isCurrent: mo === inp.leaseMonths && Math.round(strike) === Math.round(fixedStrike) }
       ));
-    });
-  });
+    }
+  }
 
   // Baseline row
   const blRow = structRow(
@@ -748,7 +759,7 @@ function updateSectionB() {
   tbody.innerHTML =
     divider(`Part 1 — Fixed strike (${fmt$(fixedStrike)}), lease length as the lever`, 8) +
     p1.map(renderStructRow).join('') +
-    divider(`Part 2 — Fixed lease (${LEASE_OPTIONS.map(m => m + 'mo').join(' or ')}), strike as the lever`, 8) +
+    divider(`Part 2 — ${PART2_LEASE_MONTHS}mo lease, strike as the lever to reach ${fmt$(inp.total + PART2_PREMIUM)}`, 8) +
     p2.map(renderStructRow).join('') +
     renderStructRow(blRow);
 

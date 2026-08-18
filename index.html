@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lease-to-Own Scenario Model — 2 Crane Court</title>
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-  <link rel="stylesheet" href="styles.css?v=20260817-1735" />
+  <link rel="stylesheet" href="styles.css?v=20260817-1902" />
 </head>
 <body>
 
 <header>
   <h1>🏘 Lease-to-Own Scenario Model</h1>
   <p>2 Crane Court · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
-  <p class="build-stamp">build 20260817-1735</p>
+  <p class="build-stamp">build 20260817-1902</p>
 </header>
 
 <!-- ── Plain-language explainer (collapsible) ──────────────────────────── -->
@@ -53,18 +53,18 @@
 
         <div class="input-row">
           <label for="in-total"><span class="tip-wrap">Total consideration to seller<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total amount the seller will ultimately receive — option fee + rent payments + strike price. This is the headline number in your offer.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-total" value="3,200,000" />
+          <input type="text" inputmode="numeric" id="in-total" value="3,100,000" />
         </div>
 
         <div class="input-row">
           <label for="in-option-fee"><span class="tip-wrap">Option consideration at signing<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">An upfront fee paid when you sign the lease. It gives you the right (the "option") to buy at the end. It counts toward the total consideration but does NOT reduce the strike price.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-option-fee" value="75,000" />
+          <input type="text" inputmode="numeric" id="in-option-fee" value="25,000" />
           <div class="hint">Non-creditable to strike price</div>
         </div>
 
         <div class="input-row">
           <label for="in-rent">Monthly rent during occupancy</label>
-          <input type="text" inputmode="numeric" id="in-rent" value="12,000" />
+          <input type="text" inputmode="numeric" id="in-rent" value="10,000" />
         </div>
 
         <div class="input-row">
@@ -167,7 +167,7 @@
 
         <div class="input-row">
           <label for="in-close-rate"><span class="tip-wrap">Mortgage rate at deal close (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The interest rate you expect to get on your mortgage when the lease ends and you close on the purchase. Lower than today's rate because rates may fall by then.</span></span></label>
-          <input type="number" id="in-close-rate" value="5.00" step="0.125" min="0" />
+          <input type="number" id="in-close-rate" value="5.25" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
@@ -309,7 +309,7 @@
       <span>Compare vs:</span>
       <select id="in-compare-base">
         <option value="deal">Proposed Deal</option>
-        <option value="sca">Scenario A</option>
+        <option value="sca" selected>Scenario A</option>
         <option value="scb" class="bc-only">Scenario B</option>
         <option value="scc" class="bc-only">Scenario C</option>
         <option value="be">Breakeven</option>
@@ -489,7 +489,7 @@
     <div class="section-title">
       <span class="tip-wrap">Deal Structure Comparison
         <button class="tip-icon" tabindex="-1">i</button>
-        <span class="tip-bubble wide">Two-part analysis. Part 1: keep the strike fixed and see how different lease lengths change the total you pay and your lifetime cost. Part 2: cap the lease at each offered length (12 or 18 months) and solve for what strike price is needed to hit each target total. The baseline row at the bottom is always "buy a comparable home at my fair value today."</span>
+        <span class="tip-bubble wide">Two-part analysis. Part 1: keep the strike fixed and see how different lease lengths change the total you pay and your lifetime cost. Part 2: hold the lease at 12 months and solve for the strike price needed to reach $50,000 above your proposed total. The baseline row at the bottom is always "buy a comparable home at my fair value today."</span>
       </span>
     </div>
 
@@ -513,7 +513,7 @@
         <label for="in-seller-ask">
           <span class="tip-wrap">Seller's asking total
             <button class="tip-icon" tabindex="-1">i</button>
-            <span class="tip-bubble">The total consideration the seller is asking for. Used in Part 2 to solve: "if I'm capped at 12 or 18 months of lease, what strike price gets the seller to this number?"</span>
+            <span class="tip-bubble">The total consideration the seller is asking for. Reference only — Part 2 now targets $50,000 above your proposed total, so this field no longer drives any calculation.</span>
           </span>
         </label>
         <div class="price-sqft-row">
@@ -588,6 +588,6 @@ document.addEventListener('click', e => {
   document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
 });
 </script>
-<script src="app.js?v=20260817-1735"></script>
+<script src="app.js?v=20260817-1902"></script>
 </body>
 </html>
