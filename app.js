@@ -772,19 +772,68 @@ function updateSectionB() {
   drawBarChart('bar-chart-b', chartRows, baselineCost);
 }
 
+// ─── Defaults application ─────────────────────────────────────────────────────
+// DEFAULTS is the single source of truth. The HTML value="" attributes are only
+// a first paint; browsers restore saved form state over them on reload, which is
+// exactly how stale option fee / rent / sqft values survived a fresh deploy.
+// The previous version derived element ids from key names, so monthlyRent looked
+// for "in-monthly-rent" (real id: "in-rent") and showBC looked for "in-show-b-c" —
+// those fields were never written from JS at all. Explicit map, no guessing.
+const DEFAULT_FIELD_MAP = [
+  ['total',       'in-total',        'comma'],
+  ['optionFee',   'in-option-fee',   'comma'],
+  ['monthlyRent', 'in-rent',         'comma'],
+  ['leaseMonths', 'in-lease-months', 'num'],
+  ['signingDate', 'in-signing-date', 'raw'],
+  ['sqft',        'in-sqft',         'comma'],
+  ['county',      'in-county',       'raw'],
+  ['taxRate',     'in-tax-rate',     'num'],
+  ['taxEsc',      'in-tax-esc',      'num'],
+  ['product',     'in-product',      'raw'],
+  ['downPct',     'in-down-pct',     'num'],
+  ['closingPct',  'in-closing-pct',  'num'],
+  ['closeRate',   'in-close-rate',   'num'],
+  ['todayRate',   'in-today-rate',   'num'],
+  ['holdYears',   'in-hold-years',   'num'],
+  ['refiYear',    'in-refi-year',    'num'],
+  ['refiRate',    'in-refi-rate',    'num'],
+  ['refiCosts',   'in-refi-costs',   'comma'],
+  ['insEsc',      'in-ins-esc',      'num'],
+  ['strikeAuto',  'in-strike-auto',  'check'],
+  ['insAuto',     'in-ins-auto',     'check'],
+  ['showBC',      'in-show-bc',      'check'],
+  ['compareBase', 'in-compare-base', 'raw'],
+  ['sensDim',     'in-sens-dim',     'raw'],
+  ['scALabel',    'in-sc-a-label',   'raw'],
+  ['scASqft',     'in-sc-a-sqft',    'num'],
+  ['scBLabel',    'in-sc-b-label',   'raw'],
+  ['scBSqft',     'in-sc-b-sqft',    'num'],
+  ['scCLabel',    'in-sc-c-label',   'raw'],
+  ['scCSqft',     'in-sc-c-sqft',    'num'],
+];
+
+function applyDefaults() {
+  DEFAULT_FIELD_MAP.forEach(([key, id, kind]) => {
+    const el = $(id);
+    if (!el || DEFAULTS[key] === undefined) return;
+    const val = DEFAULTS[key];
+    if (kind === 'check') el.checked = !!val;
+    else if (kind === 'comma') el.value = fmtComma(val);
+    else el.value = val;
+  });
+  // Scenario prices are derived from $/sqft x house sqft
+  ['a', 'b', 'c'].forEach(s => {
+    const sq = $(`in-sc-${s}-sqft`), pr = $(`in-sc-${s}-price`);
+    if (sq && pr) pr.value = fmtComma(Math.round(parseFloat(sq.value || 0) * DEFAULTS.sqft));
+  });
+  const fv = $('in-fair-value'), sa = $('in-seller-ask');
+  if (fv) fv.value = fmtComma(3050000);
+  if (sa) sa.value = fmtComma(3400000);
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 function init() {
-  // Set defaults
-  const setDef = (id, key) => {
-    const el = $(id); if (!el) return;
-    if (el.type === 'checkbox') el.checked = DEFAULTS[key];
-    else el.value = DEFAULTS[key];
-  };
-  Object.keys(DEFAULTS).forEach(k => {
-    const id = 'in-' + k.replace(/([A-Z])/g, m => '-' + m.toLowerCase())
-                         .replace(/^in-/, '');
-    setDef('in-' + k.replace(/([A-Z])/g, m => '-' + m.toLowerCase()), k);
-  });
+  applyDefaults();
 
   // Simpler explicit wiring
   const fields = [
@@ -895,6 +944,18 @@ function init() {
   $('in-insurance').classList.toggle('auto-computed', $('in-ins-auto').checked);
 
   recalculate();
+
+  // Browsers can restore saved form state AFTER DOMContentLoaded, which would
+  // silently overwrite the defaults we just applied. Re-assert on the next tick
+  // and on bfcache restore — but only when the URL carries no scenario, so a
+  // shared link is never clobbered.
+  const hasScenarioParams = new URLSearchParams(location.search).has('total');
+  if (!hasScenarioParams) {
+    setTimeout(() => { applyDefaults(); recalculate(); }, 0);
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) { applyDefaults(); recalculate(); }
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);

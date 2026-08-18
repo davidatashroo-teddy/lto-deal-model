@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lease-to-Own Scenario Model — 2 Crane Court</title>
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-  <link rel="stylesheet" href="styles.css?v=20260817-1902" />
+  <link rel="stylesheet" href="styles.css?v=20260817-1908" />
 </head>
 <body>
 
 <header>
   <h1>🏘 Lease-to-Own Scenario Model</h1>
   <p>2 Crane Court · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
-  <p class="build-stamp">build 20260817-1902</p>
+  <p class="build-stamp">build 20260817-1908</p>
 </header>
 
 <!-- ── Plain-language explainer (collapsible) ──────────────────────────── -->
@@ -53,33 +53,33 @@
 
         <div class="input-row">
           <label for="in-total"><span class="tip-wrap">Total consideration to seller<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The total amount the seller will ultimately receive — option fee + rent payments + strike price. This is the headline number in your offer.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-total" value="3,100,000" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-total" value="3,100,000" />
         </div>
 
         <div class="input-row">
           <label for="in-option-fee"><span class="tip-wrap">Option consideration at signing<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">An upfront fee paid when you sign the lease. It gives you the right (the "option") to buy at the end. It counts toward the total consideration but does NOT reduce the strike price.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-option-fee" value="25,000" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-option-fee" value="25,000" />
           <div class="hint">Non-creditable to strike price</div>
         </div>
 
         <div class="input-row">
           <label for="in-rent">Monthly rent during occupancy</label>
-          <input type="text" inputmode="numeric" id="in-rent" value="10,000" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-rent" value="10,000" />
         </div>
 
         <div class="input-row">
           <label for="in-lease-months">Lease length (months)</label>
-          <input type="number" id="in-lease-months" value="12" min="1" max="18" step="1" />
+          <input autocomplete="off" type="number" id="in-lease-months" value="12" min="1" max="18" step="1" />
         </div>
 
         <div class="input-row">
           <label for="in-signing-date">Signing date</label>
-          <input type="date" id="in-signing-date" />
+          <input autocomplete="off" type="date" id="in-signing-date" />
         </div>
 
         <div class="input-row">
           <label>Close date</label>
-          <input type="date" id="in-close-date" readonly />
+          <input autocomplete="off" type="date" id="in-close-date" readonly />
           <div class="hint">Signing + lease months (auto)</div>
         </div>
 
@@ -89,10 +89,10 @@
       <div class="input-grid two-col" style="margin-top:12px;">
         <div class="input-row">
           <label for="in-strike"><span class="tip-wrap">Strike price at close<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The price you'll pay to buy the home at the end of the lease. By default it's auto-calculated as: total − option fee − (rent × months). You can override this manually.</span></span></label>
-          <input type="text" inputmode="numeric" id="in-strike" class="auto-computed" readonly />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-strike" class="auto-computed" readonly />
           <div class="override-row">
             <label class="toggle-switch">
-              <input type="checkbox" id="in-strike-auto" checked />
+              <input autocomplete="off" type="checkbox" id="in-strike-auto" checked />
               <span class="toggle-slider"></span>
             </label>
             <label for="in-strike-auto">Auto (total − option fee − rent×months)</label>
@@ -106,7 +106,7 @@
 
         <div class="input-row">
           <label for="in-sqft">Square footage</label>
-          <input type="text" inputmode="numeric" id="in-sqft" value="3,907" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-sqft" value="3,907" />
         </div>
 
         <div class="input-row">
@@ -132,12 +132,12 @@
 
         <div class="input-row">
           <label for="in-tax-rate">Property tax rate (%)</label>
-          <input type="number" id="in-tax-rate" value="1.25" step="0.05" min="0" />
+          <input autocomplete="off" type="number" id="in-tax-rate" value="1.25" step="0.05" min="0" />
         </div>
 
         <div class="input-row">
           <label for="in-tax-esc">Annual tax escalation (%, Prop 13)</label>
-          <input type="number" id="in-tax-esc" value="2.00" step="0.25" min="0" />
+          <input autocomplete="off" type="number" id="in-tax-esc" value="2.00" step="0.25" min="0" />
         </div>
 
       </div>
@@ -157,29 +157,29 @@
 
         <div class="input-row">
           <label for="in-down-pct">Down payment (%)</label>
-          <input type="number" id="in-down-pct" value="20" step="1" min="0" max="100" />
+          <input autocomplete="off" type="number" id="in-down-pct" value="20" step="1" min="0" max="100" />
         </div>
 
         <div class="input-row">
           <label for="in-closing-pct">Closing costs (%)</label>
-          <input type="number" id="in-closing-pct" value="2.00" step="0.25" min="0" />
+          <input autocomplete="off" type="number" id="in-closing-pct" value="2.00" step="0.25" min="0" />
         </div>
 
         <div class="input-row">
           <label for="in-close-rate"><span class="tip-wrap">Mortgage rate at deal close (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The interest rate you expect to get on your mortgage when the lease ends and you close on the purchase. Lower than today's rate because rates may fall by then.</span></span></label>
-          <input type="number" id="in-close-rate" value="5.25" step="0.125" min="0" />
+          <input autocomplete="off" type="number" id="in-close-rate" value="5.25" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
         <div class="input-row">
           <label for="in-today-rate"><span class="tip-wrap">Conventional rate available today (%)<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble">The mortgage rate you'd get if you bought a home outright today instead of doing the deal. Used to price all three conventional purchase scenarios.</span></span></label>
-          <input type="number" id="in-today-rate" value="5.75" step="0.125" min="0" />
+          <input autocomplete="off" type="number" id="in-today-rate" value="5.75" step="0.125" min="0" />
           <div class="hint">Future: auto-populate from rate forecast module</div>
         </div>
 
         <div class="input-row">
           <label for="in-hold-years">Hold period (years)</label>
-          <input type="number" id="in-hold-years" value="30" step="1" min="1" max="50" />
+          <input autocomplete="off" type="number" id="in-hold-years" value="30" step="1" min="1" max="50" />
         </div>
 
       </div>
@@ -191,17 +191,17 @@
 
           <div class="input-row">
             <label for="in-refi-year">Refinance at year</label>
-            <input type="number" id="in-refi-year" value="7" step="1" min="1" />
+            <input autocomplete="off" type="number" id="in-refi-year" value="7" step="1" min="1" />
           </div>
 
           <div class="input-row">
             <label for="in-refi-rate">Refinance rate (%)</label>
-            <input type="number" id="in-refi-rate" value="4.90" step="0.125" min="0" />
+            <input autocomplete="off" type="number" id="in-refi-rate" value="4.90" step="0.125" min="0" />
           </div>
 
           <div class="input-row">
             <label for="in-refi-costs">Refinance closing costs ($)</label>
-            <input type="text" inputmode="numeric" id="in-refi-costs" value="5,000" />
+            <input autocomplete="off" type="text" inputmode="numeric" id="in-refi-costs" value="5,000" />
           </div>
 
         </div>
@@ -213,10 +213,10 @@
 
         <div class="input-row">
           <label for="in-insurance">Annual home insurance ($)</label>
-          <input type="text" inputmode="numeric" id="in-insurance" class="auto-computed" readonly />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-insurance" class="auto-computed" readonly />
           <div class="override-row">
             <label class="toggle-switch">
-              <input type="checkbox" id="in-ins-auto" checked />
+              <input autocomplete="off" type="checkbox" id="in-ins-auto" checked />
               <span class="toggle-slider"></span>
             </label>
             <label for="in-ins-auto">Auto from county lookup</label>
@@ -226,7 +226,7 @@
 
         <div class="input-row">
           <label for="in-ins-esc">Annual insurance escalation (%)</label>
-          <input type="number" id="in-ins-esc" value="3.00" step="0.25" min="0" />
+          <input autocomplete="off" type="number" id="in-ins-esc" value="3.00" step="0.25" min="0" />
         </div>
 
       </div>
@@ -235,7 +235,7 @@
       <div class="input-group-label">🔀 Comparable Purchase Scenarios</div>
       <div class="input-row" style="margin-bottom:10px;">
         <label for="in-show-bc" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-          <input type="checkbox" id="in-show-bc" />
+          <input autocomplete="off" type="checkbox" id="in-show-bc" />
           <span class="tip-wrap">Show Scenarios B &amp; C<button class="tip-icon" tabindex="-1">i</button><span class="tip-bubble wide">Off by default. The working comparison is Proposed Deal (what we'd counter at) vs Scenario A (what we actually offered). Turn this on only if you want the extra reference points back — they are excluded from the cards, the chart, and the comparison baseline while hidden.</span></span>
         </label>
       </div>
@@ -245,16 +245,16 @@
         <div>
           <div class="scen-header-row">
             <span class="scen-badge badge-a">A</span>
-            <input type="text" id="in-sc-a-label" value="What we offered" style="flex:1; font-size:.82rem; font-weight:600;" />
+            <input autocomplete="off" type="text" id="in-sc-a-label" value="What we offered" style="flex:1; font-size:.82rem; font-weight:600;" />
           </div>
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-a-sqft">$/sqft</label>
-              <input type="number" id="in-sc-a-sqft" value="780.65" step="1" />
+              <input autocomplete="off" type="number" id="in-sc-a-sqft" value="780.65" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-a-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-a-price" value="3,050,000" />
+              <input autocomplete="off" type="text" inputmode="numeric" id="in-sc-a-price" value="3,050,000" />
             </div>
           </div>
         </div>
@@ -263,16 +263,16 @@
         <div class="bc-only">
           <div class="scen-header-row">
             <span class="scen-badge badge-b">B</span>
-            <input type="text" id="in-sc-b-label" value="What we'd counter at" style="flex:1; font-size:.82rem; font-weight:600;" />
+            <input autocomplete="off" type="text" id="in-sc-b-label" value="What we'd counter at" style="flex:1; font-size:.82rem; font-weight:600;" />
           </div>
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-b-sqft">$/sqft</label>
-              <input type="number" id="in-sc-b-sqft" value="793" step="1" />
+              <input autocomplete="off" type="number" id="in-sc-b-sqft" value="793" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-b-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-b-price" value="3,098,251" />
+              <input autocomplete="off" type="text" inputmode="numeric" id="in-sc-b-price" value="3,098,251" />
             </div>
           </div>
         </div>
@@ -281,16 +281,16 @@
         <div class="bc-only">
           <div class="scen-header-row">
             <span class="scen-badge badge-c">C</span>
-            <input type="text" id="in-sc-c-label" value="What seller wants" style="flex:1; font-size:.82rem; font-weight:600;" />
+            <input autocomplete="off" type="text" id="in-sc-c-label" value="What seller wants" style="flex:1; font-size:.82rem; font-weight:600;" />
           </div>
           <div class="scen-inputs-row">
             <div class="input-row">
               <label for="in-sc-c-sqft">$/sqft</label>
-              <input type="number" id="in-sc-c-sqft" value="870" step="1" />
+              <input autocomplete="off" type="number" id="in-sc-c-sqft" value="870" step="1" />
             </div>
             <div class="input-row">
               <label for="in-sc-c-price">Total price</label>
-              <input type="text" inputmode="numeric" id="in-sc-c-price" value="3,399,090" />
+              <input autocomplete="off" type="text" inputmode="numeric" id="in-sc-c-price" value="3,399,090" />
             </div>
           </div>
         </div>
@@ -503,9 +503,9 @@
           </span>
         </label>
         <div class="price-sqft-row">
-          <input type="text" inputmode="numeric" id="in-fair-value" value="3,050,000" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-fair-value" value="3,050,000" />
           <span class="price-sqft-sep">or</span>
-          <input type="number" id="in-fair-value-sqft" style="max-width:80px;" step="1" />
+          <input autocomplete="off" type="number" id="in-fair-value-sqft" style="max-width:80px;" step="1" />
           <span class="price-sqft-unit">$/sqft</span>
         </div>
       </div>
@@ -517,9 +517,9 @@
           </span>
         </label>
         <div class="price-sqft-row">
-          <input type="text" inputmode="numeric" id="in-seller-ask" value="3,400,000" />
+          <input autocomplete="off" type="text" inputmode="numeric" id="in-seller-ask" value="3,400,000" />
           <span class="price-sqft-sep">or</span>
-          <input type="number" id="in-seller-ask-sqft" style="max-width:80px;" step="1" />
+          <input autocomplete="off" type="number" id="in-seller-ask-sqft" style="max-width:80px;" step="1" />
           <span class="price-sqft-unit">$/sqft</span>
         </div>
       </div>
@@ -588,6 +588,6 @@ document.addEventListener('click', e => {
   document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
 });
 </script>
-<script src="app.js?v=20260817-1902"></script>
+<script src="app.js?v=20260817-1908"></script>
 </body>
 </html>
