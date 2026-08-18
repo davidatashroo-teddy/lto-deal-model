@@ -5,15 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lease-to-Own Scenario Model — 2 Crane Court</title>
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-  <link rel="stylesheet" href="styles.css?v=20260817-1908" />
+  <link rel="stylesheet" href="styles.css?v=20260818-0455" />
 </head>
 <body>
 
 <header>
   <h1>🏘 Lease-to-Own Scenario Model</h1>
   <p>2 Crane Court · Lifetime cost analysis vs. conventional purchase · Adjust any input to recalculate instantly</p>
-  <p class="build-stamp">build 20260817-1908</p>
+  <p class="build-stamp">build 20260818-0455</p>
 </header>
+
+<!-- ── Upfront gut check (seller-side viability) ───────────────────────── -->
+<div class="gutcheck">
+  <div class="gutcheck-inner">
+    <div class="gutcheck-head">🧭 Before you run the numbers — two questions for the seller</div>
+    <ol class="gutcheck-list">
+      <li><strong>Do they own the home outright, or will they still be carrying a cost on it once the lease starts?</strong> If they still have a mortgage, they're paying it every month while you rent. That has to work for them or the deal doesn't happen.</li>
+      <li><strong>If they lease the home to you, where do they actually move to?</strong> If there's no clear answer, the lease-to-own isn't real yet — no matter how good the math looks.</li>
+    </ol>
+    <p class="gutcheck-foot">Nothing below depends on these. They're just the gut check worth having before you start.</p>
+  </div>
+</div>
 
 <!-- ── Plain-language explainer (collapsible) ──────────────────────────── -->
 <details class="explainer">
@@ -588,6 +600,6 @@ document.addEventListener('click', e => {
   document.querySelectorAll('.tip-wrap.tip-open').forEach(w => w.classList.remove('tip-open'));
 });
 </script>
-<script src="app.js?v=20260817-1908"></script>
+<script src="app.js?v=20260818-0455"></script>
 </body>
 </html>
